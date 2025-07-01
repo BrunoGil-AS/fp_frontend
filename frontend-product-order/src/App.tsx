@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import { login, handleCallback, authenticatedFetch } from "./auth";
-import { useAuth } from "./useAuth";
-import "./App.css";
+import {
+  login,
+  handleCallback,
+  authenticatedFetch,
+} from "./components/Security/auth";
+import { useAuth } from "./components/Security/useAuth";
+import "./styles/index.css";
 
 function App() {
   const {
@@ -72,55 +76,72 @@ function App() {
     }
   };
 
-  if (isLoading) return <p>Cargando...</p>;
+  if (isLoading)
+    return (
+      <div className="loading-container">
+        <div className="loading"></div>
+        <p className="loading-text">Cargando...</p>
+      </div>
+    );
 
   if (!isAuthenticated) {
     return (
-      <div className="container">
-        <h2>Iniciar sesión</h2>
-        <button onClick={login}>Login con OAuth2</button>
+      <div className="app-container">
+        <main className="main-content">
+          <div className="auth-section">
+            <h2 className="auth-title">Iniciar sesión</h2>
+            <button className="btn btn-primary btn-lg" onClick={login}>
+              Login con OAuth2
+            </button>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="container">
-      <h2>¡Autenticado!</h2>
+    <div className="app-container">
+      <main className="main-content">
+        <div className="container">
+          <h2 className="auth-title">¡Autenticado!</h2>
 
-      <div className="token-section">
-        <p>
-          <strong>Access Token:</strong>
-        </p>
-        <code className="token-display">{accessToken}</code>
-      </div>
+          <div className="token-section">
+            <h3>Access Token:</h3>
+            <code className="token-display">{accessToken}</code>
+          </div>
 
-      {refreshToken && (
-        <div className="token-section">
-          <p>
-            <strong>Refresh Token:</strong>
-          </p>
-          <code className="token-display">{refreshToken}</code>
+          {refreshToken && (
+            <div className="token-section">
+              <h3>Refresh Token:</h3>
+              <code className="token-display">{refreshToken}</code>
+            </div>
+          )}
+
+          <div className="button-group">
+            <button className="btn btn-secondary" onClick={handleRefreshToken}>
+              Refrescar Token
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={testAuthenticatedRequest}
+            >
+              Probar Request Autenticado
+            </button>
+            <button className="btn btn-danger" onClick={logout}>
+              Cerrar sesión
+            </button>
+          </div>
+
+          {apiResponse && (
+            <div className="api-response">
+              <h3>Respuesta:</h3>
+              <pre>{apiResponse}</pre>
+            </div>
+          )}
+
+          {/* Aquí irá la UI de productos y órdenes */}
         </div>
-      )}
-
-      <div className="button-group">
-        <button onClick={handleRefreshToken}>Refrescar Token</button>
-        <button onClick={testAuthenticatedRequest}>
-          Probar Request Autenticado
-        </button>
-        <button onClick={logout}>Cerrar sesión</button>
-      </div>
-
-      {apiResponse && (
-        <div className="api-response">
-          <p>
-            <strong>Respuesta:</strong>
-          </p>
-          <pre>{apiResponse}</pre>
-        </div>
-      )}
-
-      {/* Aquí irá la UI de productos y órdenes */}
+      </main>
     </div>
   );
 }

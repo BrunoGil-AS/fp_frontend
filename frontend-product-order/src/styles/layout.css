@@ -1,0 +1,196 @@
+/* Layout principal de la aplicación */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-sizing: border-box;
+}
+
+.app-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.main-content {
+  flex: 1;
+  width: 100vw;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* Container principal */
+
+.container {
+  text-align: center;
+  width: 100%;
+  max-width: fit-content;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: fit-content;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+
+/* Sección de autenticación */
+.auth-section {
+  align-items: baseline;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+.auth-title {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-primary);
+  font-size: var(--font-size-xxl);
+}
+
+/* Sección de tokens */
+.token-section {
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-md);
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.token-section h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+}
+
+.token-display {
+  word-break: break-all;
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  display: block;
+  margin-top: var(--spacing-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  max-height: 100px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Grupo de botones */
+.button-group {
+  margin: var(--spacing-lg) 0;
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Respuesta de API */
+.api-response {
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-md);
+  background-color: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--success-color);
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+
+.api-response h3 {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--success-color);
+  font-size: var(--font-size-lg);
+}
+
+.api-response pre {
+  margin: var(--spacing-sm) 0 0 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+}
+
+/* Loading state */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: var(--spacing-md);
+}
+
+.loading-text {
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .main-content {
+    padding: var(--spacing-sm);
+  }
+
+  .container {
+    margin-top: var(--spacing-lg);
+    padding: var(--spacing-md);
+  }
+
+  .auth-section {
+    padding: var(--spacing-md);
+  }
+
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .button-group .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .token-display {
+    font-size: 11px;
+    max-height: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm);
+  }
+
+  .token-section,
+  .api-response {
+    padding: var(--spacing-sm);
+  }
+
+  .auth-title {
+    font-size: var(--font-size-xl);
+  }
+}

@@ -1,0 +1,4 @@
+/* Importar todos los estilos en orden */
+@import "./variables.css";
+@import "./components.css";
+@import "./layout.css";

@@ -1,5 +1,5 @@
 // auth.ts: funciones para el flujo OAuth2 con PKCE
-import { generateCodeVerifier, generateCodeChallenge } from "./pkce";
+import { generateCodeVerifier, generateCodeChallenge } from "../../pkce";
 
 const AUTH_BASE_URL = "http://localhost:8081";
 const CLIENT_ID = "fp_frontend";
