@@ -69,7 +69,7 @@ export async function login() {
 }
 
 export async function handleCallback(): Promise<string | null> {
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(window.location.search); //URLSearchParams get query parameters from the URL
   const code = params.get("code");
   if (!code) return null;
   const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
@@ -104,6 +104,7 @@ export async function handleCallback(): Promise<string | null> {
   sessionStorage.setItem("id_token", data.id_token);
   // Guardar refresh token si está presente
   if (data.refresh_token) {
+    console.log("Storing refresh token:", data.refresh_token);
     sessionStorage.setItem("refresh_token", data.refresh_token);
   }
   return data.access_token;

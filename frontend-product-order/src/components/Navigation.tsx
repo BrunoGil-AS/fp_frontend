@@ -28,7 +28,7 @@ export function Navigation({ onLogout }: NavigationProps) {
             location.pathname === "/products" ? "active" : ""
           }`}
         >
-          Productos
+          Products
         </Link>
         <Link
           to="/orders"
@@ -36,7 +36,7 @@ export function Navigation({ onLogout }: NavigationProps) {
             location.pathname === "/orders" ? "active" : ""
           }`}
         >
-          Órdenes
+          Orders
         </Link>
       </div>
       <div className="nav-actions">

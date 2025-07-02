@@ -1,13 +1,15 @@
-/* Estilos para componentes de productos */
-
 .products-container {
-  display: grid;
+  display: block;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--spacing-lg);
   padding: var(--spacing-lg) 0;
+  width: 80%;
 }
 
 .product-card {
+  display: flex;
+  margin: 8px;
+  max-height: 200px;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
@@ -23,9 +25,11 @@
 }
 
 .product-image {
-  width: 100%;
+  min-width: 20%;
+  width: fit-content;
+  max-width: 40%;
   height: 200px;
-  object-fit: cover;
+  object-fit: contain;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -67,7 +71,8 @@
   font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--primary-color);
-  margin-bottom: var(--spacing-md);
+  margin-top: 100%;
+  display: block;
 }
 
 .product-actions {

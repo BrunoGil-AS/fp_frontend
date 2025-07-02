@@ -55,10 +55,10 @@ export function ProductsList() {
     fetchProducts();
   }, []);
 
-  if (loading) return <div className="loading-text">Cargando productos...</div>;
+  if (loading) return <div className="loading-text">Loading Products...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
   console.log("Productos cargados:", products);
-  if (!products.length) return <div>No hay productos disponibles.</div>;
+  if (!products.length) return <div>Not available products.</div>;
 
   return (
     <div className="products-container">
@@ -77,7 +77,7 @@ export function ProductsList() {
             <div className="product-title">{product.name}</div>
             <div className="product-description">{product.description}</div>
             <div className="product-price">${product.price.toFixed(2)}</div>
-            {/* Aquí puedes agregar botones para agregar al carrito, etc. */}
+            {/*TODO: Add purchase basket function. */}
           </div>
         </div>
       ))}
