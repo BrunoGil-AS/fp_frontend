@@ -5,6 +5,9 @@
 export const GATEWAY = "http://localhost:8080";
 export const AUTH_BASE_URL = "http://localhost:8081";
 export const PRODUCT_SERVICE = `${GATEWAY}/product-service`;
+export const ORDER_SERVICE = `${GATEWAY}/order-service`;
+export const USER_SERVICE = `${GATEWAY}/user-service`;
+
 // Agrega aquí más endpoints según sea necesario, siguiendo el patrón:
 // export const OTRO_SERVICE = `${GATEWAY}/otro-service`;
 
