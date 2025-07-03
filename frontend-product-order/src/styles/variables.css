@@ -8,6 +8,8 @@
   --danger-color: #dc3545;
   --warning-color: #ffc107;
   --info-color: #17a2b8;
+  --error-color: #dc3545;
+  --error-light: #f8d7da;
 
   /* Colores de fondo */
   --bg-primary: #ffffff;

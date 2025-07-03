@@ -1,8 +1,11 @@
 // config.ts: Centraliza las URLs y configuraciones de endpoints
 // Modifica aquí para cambiar direcciones de servicios en toda la app
 
-// Alternativa recomendada: exportar constantes para URLs
-export const GATEWAY = "http://localhost:8080";
+// Configuración para desarrollo con proxy
+const isDevelopment = import.meta.env.DEV;
+
+// Si estamos en desarrollo, usar el proxy de Vite
+export const GATEWAY = isDevelopment ? "/api" : "http://localhost:8080";
 export const AUTH_BASE_URL = "http://localhost:8081";
 export const PRODUCT_SERVICE = `${GATEWAY}/product-service`;
 export const ORDER_SERVICE = `${GATEWAY}/order-service`;

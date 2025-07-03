@@ -258,6 +258,65 @@
   visibility: visible;
 }
 
+/* Estilos para estados de carga y error */
+.loading-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-spinner {
+  border: 4px solid var(--background-color);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.profile-required {
+  text-align: center;
+  padding: 2rem;
+}
+
+.profile-required h3 {
+  color: var(--warning-color);
+  margin-bottom: 1rem;
+}
+
+.profile-required p {
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.error-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-container h3 {
+  color: var(--error-color);
+  margin-bottom: 1rem;
+}
+
+.error-message {
+  color: var(--error-color);
+  background-color: var(--error-light);
+  padding: 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--error-color);
+  margin-bottom: 1rem;
+}
+
 /* Responsive para órdenes */
 @media (max-width: 768px) {
   .orders-header {

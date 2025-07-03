@@ -73,6 +73,11 @@
 
 /* Cards */
 .card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
@@ -81,16 +86,20 @@
 }
 
 .card-header {
+  width: 100%;
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--border-color);
   background-color: var(--bg-secondary);
 }
 
 .card-body {
-  padding: var(--spacing-md);
+  width: 100%;
+  padding: var(--spacing-lg);
+  box-sizing: border-box;
 }
 
 .card-footer {
+  width: 100%;
   padding: var(--spacing-md);
   border-top: 1px solid var(--border-color);
   background-color: var(--bg-secondary);
@@ -120,6 +129,7 @@
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: border-color var(--transition-fast);
+  box-sizing: border-box;
 }
 
 .form-input:focus,
@@ -279,4 +289,31 @@
 }
 .mt-5 {
   margin-top: var(--spacing-xl);
+}
+
+/* Utilities para prevenir overflow y mejorar layout */
+.w-full {
+  width: 100%;
+}
+
+.max-w-full {
+  max-width: 100%;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-x-hidden {
+  overflow-x: hidden;
+}
+
+/* Fix para contenedores que se salen */
+.container-fluid {
+  width: 100%;
+  max-width: 100vw;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+  box-sizing: border-box;
+  overflow-x: hidden;
 }

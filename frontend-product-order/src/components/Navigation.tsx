@@ -40,6 +40,14 @@ export function Navigation({ onLogout }: NavigationProps) {
         </Link>
       </div>
       <div className="nav-actions">
+        <Link
+          to="/profile"
+          className={`btn btn-outline ${
+            location.pathname === "/profile" ? "active" : ""
+          }`}
+        >
+          Perfil
+        </Link>
         <button className="btn btn-danger btn-sm" onClick={onLogout}>
           Cerrar sesión
         </button>
