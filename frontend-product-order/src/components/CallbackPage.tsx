@@ -19,14 +19,14 @@ export function CallbackPage({ onAuthUpdate }: CallbackPageProps) {
         if (newAccessToken) {
           console.log("Token obtenido exitosamente, actualizando estado...");
           onAuthUpdate(); // Actualizar el estado después del login
-          navigate("/", { replace: true }); // Redirigir al dashboard
+          navigate("/dashboard", { replace: true }); // Redirigir al dashboard
         } else {
           console.error("No se pudo obtener el token");
-          navigate("/", { replace: true }); // Redirigir de vuelta al login
+          navigate("/", { replace: true }); // Redirigir de vuelta al inicio
         }
       } catch (error) {
         console.error("Error procesando callback:", error);
-        navigate("/", { replace: true }); // Redirigir de vuelta al login
+        navigate("/dashboard", { replace: true }); // Redirigir al dashboard (usuario ya autenticado)
       }
     };
 

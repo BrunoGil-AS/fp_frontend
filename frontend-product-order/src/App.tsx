@@ -62,6 +62,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route
+              path="/callback"
+              element={<CallbackPage onAuthUpdate={updateAuthState} />}
+            />
+            <Route
               path="/dashboard"
               element={<Dashboard accessToken={accessToken} />}
             />
