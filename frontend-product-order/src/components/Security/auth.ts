@@ -1,10 +1,10 @@
 // auth.ts: funciones para el flujo OAuth2 con PKCE
 import { generateCodeVerifier, generateCodeChallenge } from "../../pkce";
+import { AUTH_BASE_URL, CLIENT_CONFIG } from "../../config";
 
-const AUTH_BASE_URL = "http://localhost:8081";
-const CLIENT_ID = "fp_frontend";
-const REDIRECT_URI = "http://localhost:3000/callback";
-const SCOPE = "openid profile api.read api.write";
+const CLIENT_ID = CLIENT_CONFIG.CLIENT_ID;
+const REDIRECT_URI = CLIENT_CONFIG.REDIRECT_URI;
+const SCOPE = CLIENT_CONFIG.SCOPE;
 
 // Función para decodificar JWT sin verificar la firma (solo para leer claims)
 function decodeJWT(
@@ -72,9 +72,65 @@ export async function handleCallback(): Promise<string | null> {
   const params = new URLSearchParams(window.location.search); //URLSearchParams get query parameters from the URL
   const code = params.get("code");
   if (!code) return null;
+
+  return await exchangeCodeForToken(code);
+}
+
+export function getAccessToken(): string | null {
+  return sessionStorage.getItem("access_token");
+}
+
+// Función para realizar reauthentication silenciosa (fallback con redirección)
+export async function silentReauth(): Promise<string | null> {
+  try {
+    console.log("Iniciando reauthentication silenciosa...");
+
+    // Si el token está expirado o próximo a expirar, redirigir para obtener uno nuevo
+    const accessToken = getAccessToken();
+    if (
+      !accessToken ||
+      isTokenExpired(accessToken) ||
+      isTokenExpiringSoon(accessToken)
+    ) {
+      console.log(
+        "Token expirado o próximo a expirar, redirigiendo para reauth..."
+      );
+      await redirectToReauth();
+      return null; // La redirección maneja el flujo
+    }
+
+    return accessToken;
+  } catch (error) {
+    console.error("Error en silent reauth:", error);
+    return null;
+  }
+}
+
+// Función para redirigir al servidor de autorización para reauth
+export async function redirectToReauth() {
+  const codeVerifier = generateCodeVerifier();
+  const codeChallenge = await generateCodeChallenge(codeVerifier);
+  sessionStorage.setItem("pkce_code_verifier", codeVerifier);
+
+  const params = new URLSearchParams({
+    response_type: "code",
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    scope: SCOPE,
+    code_challenge: codeChallenge,
+    code_challenge_method: "S256",
+    prompt: "none", // Importante: no mostrar UI de login si hay sesión activa
+  });
+
+  const authUrl = `${AUTH_BASE_URL}/oauth2/authorize?${params.toString()}`;
+  window.location.href = authUrl;
+}
+
+// Función auxiliar para intercambiar código por token
+async function exchangeCodeForToken(code: string): Promise<string | null> {
   const codeVerifier = sessionStorage.getItem("pkce_code_verifier");
-  console.log("PKCE code_verifier:", codeVerifier);
   if (!codeVerifier) throw new Error("No PKCE code_verifier found");
+
   const body = new URLSearchParams({
     grant_type: "authorization_code",
     code,
@@ -82,126 +138,46 @@ export async function handleCallback(): Promise<string | null> {
     client_id: CLIENT_ID,
     code_verifier: codeVerifier,
   });
-  console.log("Token exchange request:", {
-    url: `${AUTH_BASE_URL}/oauth2/token`,
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: body.toString(),
-  });
+
   const resp = await fetch(`${AUTH_BASE_URL}/oauth2/token`, {
-    //mode: "no-cors",
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body,
   });
-  console.log("Response status:", resp);
+
   if (!resp.ok) throw new Error("Token exchange failed");
+
   const data = await resp.json();
   console.log("Token exchange response:", data);
+
+  // Guardar tokens (sin refresh token)
   sessionStorage.setItem("access_token", data.access_token);
   sessionStorage.setItem("id_token", data.id_token);
-  // Guardar refresh token si está presente
-  if (data.refresh_token) {
-    console.log("Storing refresh token:", data.refresh_token);
-    sessionStorage.setItem("refresh_token", data.refresh_token);
-  }
+
   return data.access_token;
 }
 
-export function getAccessToken(): string | null {
-  return sessionStorage.getItem("access_token");
-}
-
-export function getRefreshToken(): string | null {
-  return sessionStorage.getItem("refresh_token");
-}
-
-// Función para refrescar el access token usando el refresh token
-export async function refreshAccessToken(): Promise<string | null> {
-  const refreshToken = getRefreshToken();
-  if (!refreshToken) {
-    console.log("No refresh token available");
-    return null;
-  }
-
-  // Verificar si el refresh token ha expirado
-  if (isTokenExpired(refreshToken)) {
-    console.log("Refresh token has expired, user needs to login again");
-    logout();
-    return null;
-  }
-
-  try {
-    const body = new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-      client_id: CLIENT_ID,
-    });
-
-    console.log("Refreshing token request:", {
-      url: `${AUTH_BASE_URL}/oauth2/token`,
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: body.toString(),
-    });
-
-    const resp = await fetch(`${AUTH_BASE_URL}/oauth2/token`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body,
-    });
-
-    if (!resp.ok) {
-      const errorText = await resp.text();
-      console.error(
-        "Token refresh failed:",
-        resp.status,
-        resp.statusText,
-        errorText
-      );
-
-      // Si el refresh token es inválido (400/401), limpiar tokens y forzar re-login
-      if (resp.status === 400 || resp.status === 401) {
-        console.log("Invalid refresh token, clearing session");
-        logout();
-      }
-      return null;
-    }
-
-    const data = await resp.json();
-    console.log("Token refresh response:", data);
-
-    // Actualizar tokens en sessionStorage
-    sessionStorage.setItem("access_token", data.access_token);
-    if (data.refresh_token) {
-      sessionStorage.setItem("refresh_token", data.refresh_token);
-    }
-    if (data.id_token) {
-      sessionStorage.setItem("id_token", data.id_token);
-    }
-
-    return data.access_token;
-  } catch (error) {
-    console.error("Error refreshing token:", error);
-    // En caso de error de red, no limpiar tokens automáticamente
-    // El usuario puede intentar más tarde
-    return null;
-  }
-}
-
-// Función para hacer requests autenticados con refresh automático
+// Función para hacer requests autenticados con reauth automática
 export async function authenticatedFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
   const accessToken = getAccessToken();
 
-  if (!accessToken) {
-    throw new Error("No access token available");
+  // Si no hay token o está expirado, intentar reauth
+  if (!accessToken || isTokenExpired(accessToken)) {
+    console.log("Access token missing or expired, redirecting for reauth...");
+    await redirectToReauth();
+    throw new Error("Redirecting for authentication");
+  }
+
+  // Si el token está próximo a expirar, también redirigir
+  if (isTokenExpiringSoon(accessToken)) {
+    console.log("Access token expiring soon, redirecting for reauth...");
+    await redirectToReauth();
+    throw new Error("Redirecting for token renewal");
   }
 
   // Agregar Authorization header
@@ -210,31 +186,16 @@ export async function authenticatedFetch(
     Authorization: `Bearer ${accessToken}`,
   };
 
-  let response = await fetch(url, {
+  const response = await fetch(url, {
     ...options,
     headers,
   });
 
-  // Si la respuesta es 401 (Unauthorized), intentar refrescar el token
+  // Si la respuesta es 401 (Unauthorized), redirigir para reauth
   if (response.status === 401) {
-    console.log("Access token expired, attempting to refresh...");
-
-    const newAccessToken = await refreshAccessToken();
-    if (newAccessToken) {
-      // Reintentar la request con el nuevo token
-      const newHeaders = {
-        ...options.headers,
-        Authorization: `Bearer ${newAccessToken}`,
-      };
-
-      response = await fetch(url, {
-        ...options,
-        headers: newHeaders,
-      });
-    } else {
-      // Si no se pudo refrescar, redirigir al login
-      throw new Error("Unable to refresh token, please login again");
-    }
+    console.log("Received 401, redirecting for reauth...");
+    await redirectToReauth();
+    throw new Error("Authentication failed, redirecting for reauth");
   }
 
   return response;

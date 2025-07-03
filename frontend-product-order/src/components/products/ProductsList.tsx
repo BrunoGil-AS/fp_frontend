@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { authenticatedFetch } from "../Security/auth";
+import { PRODUCT_SERVICE } from "../../config";
 import "../../styles/components/products.css";
 
 interface Product {
@@ -20,13 +21,10 @@ export function ProductsList() {
       setLoading(true);
       setError(null);
       try {
-        console.log(
-          "🚀 Solicitando productos desde: http://localhost:8080/product-service/products"
-        );
+        const productsUrl = `${PRODUCT_SERVICE}/products`;
+        console.log("🚀 Solicitando productos desde:", productsUrl);
 
-        const response = await authenticatedFetch(
-          "http://localhost:8080/product-service/products"
-        );
+        const response = await authenticatedFetch(productsUrl);
 
         console.log("📡 Respuesta del servidor:", {
           status: response.status,

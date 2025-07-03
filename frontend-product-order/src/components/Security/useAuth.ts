@@ -1,15 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   getAccessToken,
-  getRefreshToken,
-  refreshAccessToken,
+  redirectToReauth,
   isTokenExpiringSoon,
   logout as authLogout,
 } from "./auth";
 
 export interface AuthState {
   accessToken: string | null;
-  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
@@ -17,7 +15,6 @@ export interface AuthState {
 export function useAuth() {
   const [authState, setAuthState] = useState<AuthState>({
     accessToken: null,
-    refreshToken: null,
     isAuthenticated: false,
     isLoading: true,
   });
@@ -25,59 +22,47 @@ export function useAuth() {
   // Función para actualizar el estado de autenticación
   const updateAuthState = useCallback(() => {
     const accessToken = getAccessToken();
-    const refreshToken = getRefreshToken();
 
     setAuthState({
       accessToken,
-      refreshToken,
       isAuthenticated: !!accessToken,
       isLoading: false,
     });
   }, []);
 
-  // Función para refrescar el token
-  const refreshTokenFunction = useCallback(async (): Promise<boolean> => {
+  // Función para realizar redirect reauth
+  const redirectReauthFunction = useCallback(async (): Promise<void> => {
     try {
-      const newAccessToken = await refreshAccessToken();
-      if (newAccessToken) {
-        updateAuthState();
-        return true;
-      }
-      return false;
+      await redirectToReauth();
     } catch (error) {
-      console.error("Error refreshing token:", error);
-      return false;
+      console.error("Error in redirect reauth:", error);
     }
-  }, [updateAuthState]);
+  }, []);
 
   // Función para logout
   const logout = useCallback(() => {
     authLogout();
     setAuthState({
       accessToken: null,
-      refreshToken: null,
       isAuthenticated: false,
       isLoading: false,
     });
   }, []);
 
-  // Auto-refresh del token antes de que expire
+  // Auto-reauth cuando el token está próximo a expirar
   useEffect(() => {
-    if (authState.accessToken && authState.refreshToken) {
+    if (authState.accessToken) {
       // Verificar cada minuto si el token está próximo a expirar
       const interval = setInterval(async () => {
         if (isTokenExpiringSoon(authState.accessToken)) {
-          console.log("Access token expiring soon, refreshing...");
-          const success = await refreshTokenFunction();
-          if (!success) {
-            console.log("Auto-refresh failed, user will need to login again");
-          }
+          console.log("Access token expiring soon, redirecting for reauth...");
+          await redirectReauthFunction();
         }
       }, 60 * 1000); // Verificar cada minuto
 
       return () => clearInterval(interval);
     }
-  }, [authState.accessToken, authState.refreshToken, refreshTokenFunction]);
+  }, [authState.accessToken, redirectReauthFunction]);
 
   // Inicializar el estado de autenticación
   useEffect(() => {
@@ -86,7 +71,7 @@ export function useAuth() {
 
   return {
     ...authState,
-    refreshTokenFunction,
+    redirectReauthFunction,
     logout,
     updateAuthState,
   };

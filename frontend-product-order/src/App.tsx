@@ -14,15 +14,8 @@ import { OrdersPage } from "./components/orders/OrdersPage";
 import "./styles/index.css";
 
 function App() {
-  const {
-    accessToken,
-    refreshToken,
-    isAuthenticated,
-    isLoading,
-    refreshTokenFunction,
-    logout,
-    updateAuthState,
-  } = useAuth();
+  const { accessToken, isAuthenticated, isLoading, logout, updateAuthState } =
+    useAuth();
 
   useEffect(() => {
     // Si estamos en /callback, intercambiar el código por el token
@@ -72,13 +65,7 @@ function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route
               path="/dashboard"
-              element={
-                <Dashboard
-                  accessToken={accessToken}
-                  refreshToken={refreshToken}
-                  onRefreshToken={refreshTokenFunction}
-                />
-              }
+              element={<Dashboard accessToken={accessToken} />}
             />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/orders" element={<OrdersPage />} />

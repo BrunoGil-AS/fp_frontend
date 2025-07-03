@@ -1,32 +1,20 @@
 import { useState } from "react";
-import { authenticatedFetch } from "./Security/auth";
+import { authenticatedFetch, redirectToReauth } from "./Security/auth";
 
 interface DashboardProps {
   accessToken: string | null;
-  refreshToken: string | null;
-  onRefreshToken: () => Promise<boolean>;
 }
 
-export function Dashboard({
-  accessToken,
-  refreshToken,
-  onRefreshToken,
-}: DashboardProps) {
+export function Dashboard({ accessToken }: DashboardProps) {
   const [apiResponse, setApiResponse] = useState<string>("");
 
-  const handleRefreshToken = async () => {
+  const handleReauth = async () => {
     try {
-      setApiResponse("Refrescando token...");
-      const success = await onRefreshToken();
-      if (success) {
-        setApiResponse("✅ Token refrescado exitosamente!");
-      } else {
-        setApiResponse(
-          "❌ Error al refrescar el token. Es posible que necesites hacer login nuevamente."
-        );
-      }
+      setApiResponse("Redirigiendo para reauthenticación...");
+      await redirectToReauth();
+      setApiResponse("✅ Redirigiendo para obtener nuevo token...");
     } catch (error) {
-      console.error("Error in handleRefreshToken:", error);
+      console.error("Error in handleReauth:", error);
       setApiResponse(
         `❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`
       );
@@ -74,18 +62,9 @@ export function Dashboard({
             </code>
           </div>
 
-          {refreshToken && (
-            <div className="token-section">
-              <h4>Refresh Token:</h4>
-              <code className="token-display">
-                {refreshToken.substring(0, 50) + "..."}
-              </code>
-            </div>
-          )}
-
           <div className="button-group">
-            <button className="btn btn-secondary" onClick={handleRefreshToken}>
-              🔄 Refrescar Token
+            <button className="btn btn-secondary" onClick={handleReauth}>
+              🔄 Renovar Token
             </button>
             <button
               className="btn btn-primary"
