@@ -23,6 +23,7 @@ export function UserProfile({
     firstName: "",
     lastName: "",
     email: userEmail,
+    address: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +36,7 @@ export function UserProfile({
         firstName: userProfile.firstName,
         lastName: userProfile.lastName,
         email: userProfile.email,
+        address: userProfile.address || "",
       });
     } else if (userName) {
       console.log("User name from JWT:", userName);
@@ -44,6 +46,7 @@ export function UserProfile({
         firstName: nameParts[0] || "",
         lastName: nameParts.slice(1).join(" ") || "",
         email: userEmail,
+        address: "",
       });
     }
   }, [userProfile, userEmail, userName]);
@@ -156,6 +159,20 @@ export function UserProfile({
                   onChange={handleInputChange}
                   className="form-control"
                   placeholder="Ingrese su apellido"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="address">Dirección</label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className="form-control"
+                  placeholder="Ingrese su dirección completa"
                   required
                 />
               </div>

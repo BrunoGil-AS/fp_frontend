@@ -7,6 +7,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
+  address: string;
 }
 
 export interface AppResponse<T> {
@@ -70,13 +71,11 @@ function extractUserInfoFromToken(): CurrentUserInfo {
 
     return {
       subject: payload.sub || payload.username || "",
-      email: payload.email || "",
+      email: payload.email || payload.sub || "",
       name: payload.name || payload.given_name || "",
-      authorities: payload.scope
-        ?.split(" ")
-        .map((scope: string) => ({
-          authority: `ROLE_${scope.toUpperCase()}`,
-        })) || [{ authority: "ROLE_USER" }],
+      authorities: payload.scope?.split(" ").map((scope: string) => ({
+        authority: `ROLE_${scope.toUpperCase()}`,
+      })) || [{ authority: "ROLE_USER" }],
       isAuthenticated: true,
     };
   } catch (error) {
@@ -155,6 +154,7 @@ export async function createUserProfile(
 // Función para actualizar un perfil de usuario
 export async function updateUserProfile(userData: User): Promise<User> {
   try {
+    console.log("Updating user profile with data:", JSON.stringify(userData));
     const response = await authenticatedFetch(
       `${USER_SERVICE}/users/me/update`,
       {

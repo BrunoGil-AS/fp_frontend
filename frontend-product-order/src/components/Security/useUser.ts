@@ -61,10 +61,10 @@ export function useUser() {
 
   const refreshUserProfile = async () => {
     if (!userState.currentUserInfo) return;
-
+    console.log("Refreshing user profile for:", userState.currentUserInfo);
     try {
       const userProfile = await checkUserProfile(
-        userState.currentUserInfo.email
+        userState.currentUserInfo.subject
       );
       setUserState((prev) => ({
         ...prev,
