@@ -155,6 +155,38 @@ body {
   margin-top: var(--spacing-md);
 }
 
+/* Estilos para el Dashboard */
+.draft-order-summary {
+  text-align: center;
+}
+
+.draft-order-summary h4 {
+  color: var(--warning-color);
+  margin-bottom: var(--spacing-md);
+}
+
+.order-details {
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--border-color);
+}
+
+.order-details p {
+  margin: var(--spacing-xs) 0;
+  color: var(--text-primary);
+}
+
+.no-draft-order {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.no-draft-order p {
+  margin-bottom: var(--spacing-lg);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .main-content {

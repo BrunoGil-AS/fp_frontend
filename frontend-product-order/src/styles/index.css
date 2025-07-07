@@ -3,4 +3,6 @@
 @import "./components.css";
 @import "./layout.css";
 @import "./components/navigation.css";
+@import "./components/products.css";
+@import "./components/orders.css";
 @import "./components/userprofile.css";
