@@ -104,63 +104,78 @@ export function OrderCard({
           </div>
         ) : (
           <div className="order-items">
-            {order.items.map((item, index) => (
-              <div key={`${item.product.id}-${index}`} className="order-item">
-                {item.product.imageUrl ? (
-                  <img
-                    className="item-image"
-                    src={item.product.imageUrl}
-                    alt={item.product.name}
-                  />
-                ) : (
-                  <div className="item-image-placeholder">Sin imagen</div>
-                )}
+            {order.items
+              .map((item, index) => {
+                // Validar que el item y el product existen
+                if (!item || !item.product) {
+                  console.warn("Invalid order item:", item);
+                  return null;
+                }
 
-                <div className="item-details">
-                  <div className="item-name">{item.product.name}</div>
-                  <div className="item-info">
-                    <span className="item-price">
-                      ${item.product.price.toFixed(2)}
-                    </span>
-                    <span className="item-subtotal">
-                      Subtotal: $
-                      {(item.product.price * item.quantity).toFixed(2)}
-                    </span>
+                return (
+                  <div
+                    key={`${item.product.id}-${index}`}
+                    className="order-item"
+                  >
+                    {item.product.imageUrl ? (
+                      <img
+                        className="item-image"
+                        src={item.product.imageUrl}
+                        alt={item.product.name || "Producto"}
+                      />
+                    ) : (
+                      <div className="item-image-placeholder">Sin imagen</div>
+                    )}
+
+                    <div className="item-details">
+                      <div className="item-name">
+                        {item.product.name || "Producto sin nombre"}
+                      </div>
+                      <div className="item-info">
+                        <span className="item-price">
+                          ${item.product.price.toFixed(2)}
+                        </span>
+                        <span className="item-subtotal">
+                          Subtotal: $
+                          {(item.product.price * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="item-quantity">
+                      <button
+                        className="quantity-btn"
+                        onClick={() =>
+                          onUpdateQuantity(item.product.id, item.quantity - 1)
+                        }
+                        disabled={isLoading}
+                      >
+                        -
+                      </button>
+                      <span className="quantity-value">{item.quantity}</span>
+                      <button
+                        className="quantity-btn"
+                        onClick={() =>
+                          onUpdateQuantity(item.product.id, item.quantity + 1)
+                        }
+                        disabled={isLoading}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <button
+                      className="btn btn-danger btn-sm remove-item-btn"
+                      onClick={() => onRemoveProduct(item.product.id)}
+                      disabled={isLoading}
+                      title="Eliminar producto"
+                    >
+                      🗑️
+                    </button>
                   </div>
-                </div>
-
-                <div className="item-quantity">
-                  <button
-                    className="quantity-btn"
-                    onClick={() =>
-                      onUpdateQuantity(item.product.id, item.quantity - 1)
-                    }
-                    disabled={isLoading}
-                  >
-                    -
-                  </button>
-                  <span className="quantity-value">{item.quantity}</span>
-                  <button
-                    className="quantity-btn"
-                    onClick={() =>
-                      onUpdateQuantity(item.product.id, item.quantity + 1)
-                    }
-                    disabled={isLoading}
-                  >
-                    +
-                  </button>
-                </div>
-
-                <button
-                  className="btn btn-danger btn-sm remove-item-btn"
-                  onClick={() => onRemoveProduct(item.product.id)}
-                  disabled={isLoading}
-                  title="Eliminar producto"
-                >
-                  🗑️
-                </button>
-              </div>
-            ))}
+                );
+              })
+              .filter(Boolean)}
           </div>
         )}
 

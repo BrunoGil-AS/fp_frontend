@@ -259,6 +259,27 @@ class OrdersStore {
       throw new Error("La orden está vacía");
     }
 
+    // Log detallado de la orden antes de enviarla
+    console.log("🚀 Confirming draft order:", {
+      itemsCount: this.state.draftOrder.items.length,
+      items: this.state.draftOrder.items.map((item) => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        quantity: item.quantity,
+        hasValidProductId: item.product.id != null,
+      })),
+      total: this.state.draftOrder.total,
+    });
+
+    // Verificar que todos los items tengan productId válido
+    const invalidItems = this.state.draftOrder.items.filter(
+      (item) => !item.product.id
+    );
+    if (invalidItems.length > 0) {
+      console.error("❌ Found items with invalid productId:", invalidItems);
+      throw new Error(`${invalidItems.length} productos tienen ID inválido`);
+    }
+
     try {
       const createdOrder = await createOrder(this.state.draftOrder);
 
@@ -269,9 +290,10 @@ class OrdersStore {
       });
 
       this.saveDraftOrderToStorage(null);
+      console.log("✅ Order confirmed successfully:", createdOrder.id);
       return createdOrder;
     } catch (error) {
-      console.error("Error confirming draft order:", error);
+      console.error("❌ Error confirming draft order:", error);
       throw error;
     }
   }

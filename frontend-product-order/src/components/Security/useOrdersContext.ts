@@ -1,7 +1,7 @@
 // useOrdersContext.ts: Hook para usar el contexto de órdenes
 import { useContext } from "react";
-import { OrdersContext } from "./OrdersContext";
-import type { OrdersContextType } from "./OrdersContext";
+import { OrdersContext } from "./ordersContext";
+import type { OrdersContextType } from "./ordersContext";
 
 export function useOrdersContext(): OrdersContextType {
   const context = useContext(OrdersContext);

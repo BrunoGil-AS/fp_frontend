@@ -7,6 +7,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  category?: string;
   imageUrl?: string;
 }
 
@@ -14,6 +15,7 @@ export interface OrderItem {
   id?: number;
   product: Product;
   quantity: number;
+  subtotal?: number;
 }
 
 export interface Order {
@@ -26,9 +28,59 @@ export interface Order {
   total?: number;
 }
 
+// Interfaces para los datos que vienen del servidor
+interface ServerOrderItem {
+  id: number;
+  productId: number;
+  productName: string;
+  productPrice: number;
+  productCategory: string;
+  productImageUrl: string;
+  quantity: number;
+  subtotal: number;
+}
+
+interface ServerOrder {
+  id: number;
+  userEmail: string;
+  items: ServerOrderItem[];
+  createdAt: string;
+  total: number;
+}
+
 export interface AppResponse<T> {
   message: string;
   data: T;
+}
+
+// Función para transformar datos del servidor al formato del frontend
+function transformServerOrderToClientOrder(serverOrder: ServerOrder): Order {
+  return {
+    id: serverOrder.id,
+    user: { email: serverOrder.userEmail },
+    items: serverOrder.items.map(
+      (serverItem): OrderItem => ({
+        id: serverItem.id,
+        product: {
+          id: serverItem.productId,
+          name: serverItem.productName || "Producto sin nombre",
+          description: "", // No viene del servidor en este endpoint
+          price: serverItem.productPrice || 0,
+          category: serverItem.productCategory || "Sin categoría",
+          // Verificar si la URL de imagen es válida
+          imageUrl:
+            serverItem.productImageUrl &&
+            serverItem.productImageUrl.startsWith("http")
+              ? serverItem.productImageUrl
+              : undefined,
+        },
+        quantity: serverItem.quantity || 1,
+        subtotal: serverItem.subtotal || 0,
+      })
+    ),
+    createdAt: serverOrder.createdAt,
+    total: serverOrder.total || 0,
+  };
 }
 
 // Función para obtener las órdenes del usuario autenticado
@@ -40,24 +92,61 @@ export async function getUserOrders(): Promise<Order[]> {
       throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
 
-    const result: AppResponse<Order[]> = await response.json();
-    console.log("User Orders:", result.data);
-    return result.data;
+    const result: AppResponse<ServerOrder[]> = await response.json();
+    console.log("Raw Server Orders:", result.data);
+
+    // Transformar los datos del servidor al formato del frontend
+    const transformedOrders = result.data.map(
+      transformServerOrderToClientOrder
+    );
+    console.log("Transformed Orders:", transformedOrders);
+
+    return transformedOrders;
   } catch (error) {
     console.error("Error fetching user orders:", error);
     throw error;
   }
 }
 
+// Interfaces para envío de datos al backend
+interface CreateOrderPayload {
+  items: Array<{
+    productId: number;
+    quantity: number;
+  }>;
+}
+
+// Función para transformar orden del frontend al formato requerido por el backend
+function transformOrderToCreatePayload(order: Order): CreateOrderPayload {
+  return {
+    items: order.items
+      .map((item) => ({
+        productId: item.product.id,
+        quantity: item.quantity,
+      }))
+      .filter((item) => item.productId != null), // Filtrar items con productId null
+  };
+}
+
 // Función para crear una nueva orden
 export async function createOrder(order: Order): Promise<Order> {
   try {
+    // Validar que la orden tenga items válidos
+    const validItems = order.items.filter((item) => item.product.id != null);
+    if (validItems.length === 0) {
+      throw new Error("La orden debe contener al menos un producto válido");
+    }
+
+    // Transformar al formato requerido por el backend
+    const payload = transformOrderToCreatePayload(order);
+    console.log("📤 Sending order creation payload:", payload);
+
     const response = await authenticatedFetch(`${ORDER_SERVICE}/orders/me`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(order),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -67,8 +156,9 @@ export async function createOrder(order: Order): Promise<Order> {
       );
     }
 
-    const result: AppResponse<Order> = await response.json();
-    return result.data;
+    const result: AppResponse<ServerOrder> = await response.json();
+    // Transformar la respuesta del servidor al formato del frontend
+    return transformServerOrderToClientOrder(result.data);
   } catch (error) {
     console.error("Error creating order:", error);
     throw error;
@@ -78,12 +168,22 @@ export async function createOrder(order: Order): Promise<Order> {
 // Función para actualizar una orden existente
 export async function updateOrder(order: Order): Promise<Order> {
   try {
+    // Validar que la orden tenga items válidos
+    const validItems = order.items.filter((item) => item.product.id != null);
+    if (validItems.length === 0) {
+      throw new Error("La orden debe contener al menos un producto válido");
+    }
+
+    // Transformar al formato requerido por el backend
+    const payload = transformOrderToCreatePayload(order);
+    console.log("📤 Sending order update payload:", payload);
+
     const response = await authenticatedFetch(`${ORDER_SERVICE}/orders/me`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(order),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -93,8 +193,9 @@ export async function updateOrder(order: Order): Promise<Order> {
       );
     }
 
-    const result: AppResponse<Order> = await response.json();
-    return result.data;
+    const result: AppResponse<ServerOrder> = await response.json();
+    // Transformar la respuesta del servidor al formato del frontend
+    return transformServerOrderToClientOrder(result.data);
   } catch (error) {
     console.error("Error updating order:", error);
     throw error;

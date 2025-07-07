@@ -2,6 +2,7 @@ import { useState } from "react";
 import { authenticatedFetch, redirectToReauth } from "./Security/auth";
 import { useOrders } from "./Security/useOrders";
 import { Link } from "react-router-dom";
+import { OrderTestComponent } from "./orders/OrderTestComponent";
 
 interface DashboardProps {
   accessToken: string | null;
@@ -127,6 +128,9 @@ export function Dashboard({ accessToken }: DashboardProps) {
           )}
         </div>
       </div>
+
+      {/* Componente de prueba temporal */}
+      <OrderTestComponent />
     </div>
   );
 }
