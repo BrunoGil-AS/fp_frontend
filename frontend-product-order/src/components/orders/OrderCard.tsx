@@ -1,4 +1,4 @@
-// OrderCard.tsx: Componente para mostrar una orden individual
+// OrderCard.tsx: Component to display an individual order
 import { useState } from "react";
 import type { Order } from "../Security/orderService";
 
@@ -39,7 +39,7 @@ export function OrderCard({
   const handleDeleteOrder = async () => {
     if (
       !onDeleteOrder ||
-      !confirm("¿Estás seguro de que deseas eliminar esta orden?")
+      !confirm("Are you sure you want to delete this order?")
     )
       return;
 
@@ -54,8 +54,8 @@ export function OrderCard({
   };
 
   const getOrderStatus = () => {
-    if (isDraft) return "Nueva";
-    return "Creada";
+    if (isDraft) return "New";
+    return "Created";
   };
 
   const getOrderStatusClass = () => {
@@ -84,8 +84,8 @@ export function OrderCard({
       <div className="order-body">
         {order.items.length === 0 ? (
           <div className="empty-order">
-            <p>Esta orden está vacía</p>
-            <small>Agrega productos desde el catálogo</small>
+            <p>This order is empty</p>
+            <small>Add products from the catalog</small>
           </div>
         ) : (
           <div className="order-items">
@@ -106,15 +106,15 @@ export function OrderCard({
                       <img
                         className="item-image"
                         src={item.product.imageUrl}
-                        alt={item.product.name || "Producto"}
+                        alt={item.product.name || "Product"}
                       />
                     ) : (
-                      <div className="item-image-placeholder">Sin imagen</div>
+                      <div className="item-image-placeholder">No image</div>
                     )}
 
                     <div className="item-details">
                       <div className="item-name">
-                        {item.product.name || "Producto sin nombre"}
+                        {item.product.name || "Unnamed product"}
                       </div>
                       <div className="item-info">
                         <span className="item-price">
@@ -186,7 +186,7 @@ export function OrderCard({
               onClick={onCancelDraft}
               disabled={isLoading}
             >
-              Cancelar
+              Cancel
             </button>
             {order.items.length > 0 && (
               <button
@@ -194,7 +194,7 @@ export function OrderCard({
                 onClick={handleConfirmOrder}
                 disabled={isLoading}
               >
-                {isLoading ? "Creando..." : "Crear Orden"}
+                {isLoading ? "Creating..." : "Create Order"}
               </button>
             )}
           </>
@@ -205,7 +205,7 @@ export function OrderCard({
               onClick={handleDeleteOrder}
               disabled={isLoading}
             >
-              {isLoading ? "Eliminando..." : "Eliminar"}
+              {isLoading ? "Deleting..." : "Delete"}
             </button>
           </>
         )}

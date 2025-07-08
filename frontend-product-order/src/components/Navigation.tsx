@@ -46,10 +46,10 @@ export function Navigation({ onLogout }: NavigationProps) {
             location.pathname === "/profile" ? "active" : ""
           }`}
         >
-          Perfil
+          Profile
         </Link>
         <button className="btn btn-danger btn-sm" onClick={onLogout}>
-          Cerrar sesión
+          Log out
         </button>
       </div>
     </nav>

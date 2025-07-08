@@ -10,11 +10,10 @@ export function Dashboard({ accessToken }: DashboardProps) {
 
   const handleReauth = async () => {
     try {
-      setApiResponse("Redirigiendo para reauthenticación...");
+      setApiResponse("Redirecting for re-authentication...");
       await redirectToReauth();
-      setApiResponse("✅ Redirigiendo para obtener nuevo token...");
+      setApiResponse("✅ Redirecting to obtain new token...");
     } catch (error) {
-      console.error("Error in handleReauth:", error);
       setApiResponse(
         `❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`
       );
@@ -23,7 +22,7 @@ export function Dashboard({ accessToken }: DashboardProps) {
 
   const testAuthenticatedRequest = async () => {
     try {
-      setApiResponse("Probando conexión...");
+      setApiResponse("Testing connection...");
       const response = await authenticatedFetch(
         "http://localhost:8080/gateway/test",
         {
@@ -50,7 +49,7 @@ export function Dashboard({ accessToken }: DashboardProps) {
 
       <div className="card">
         <div className="card-header">
-          <h3>Estado de Autenticación</h3>
+          <h3>Authentication Status</h3>
         </div>
         <div className="card-body">
           <div className="token-section">
@@ -58,25 +57,25 @@ export function Dashboard({ accessToken }: DashboardProps) {
             <code className="token-display">
               {accessToken
                 ? accessToken.substring(0, 50) + "..."
-                : "No disponible"}
+                : "Not available"}
             </code>
           </div>
 
           <div className="button-group">
             <button className="btn btn-secondary" onClick={handleReauth}>
-              🔄 Renovar Token
+              🔄 Renew Token
             </button>
             <button
               className="btn btn-primary"
               onClick={testAuthenticatedRequest}
             >
-              🧪 Probar Conexión API
+              🧪 Test API Connection
             </button>
           </div>
 
           {apiResponse && (
             <div className="api-response">
-              <h4>Respuesta:</h4>
+              <h4>Response:</h4>
               <pre>{apiResponse}</pre>
             </div>
           )}

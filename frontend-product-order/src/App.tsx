@@ -22,7 +22,7 @@ function App() {
     return (
       <div className="loading-container">
         <div className="loading"></div>
-        <p className="loading-text">Cargando...</p>
+        <p className="loading-text">Loading...</p>
       </div>
     );
 
@@ -40,9 +40,9 @@ function App() {
               element={
                 <main className="main-content">
                   <div className="auth-section">
-                    <h2 className="auth-title">Iniciar sesión</h2>
+                    <h2 className="auth-title">Login</h2>
                     <button className="btn btn-primary btn-lg" onClick={login}>
-                      Login con OAuth2
+                      Login with OAuth2
                     </button>
                   </div>
                 </main>

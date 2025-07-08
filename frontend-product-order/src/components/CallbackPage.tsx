@@ -1,4 +1,4 @@
-// CallbackPage.tsx: Componente para manejar el callback de OAuth2
+// CallbackPage.tsx: Component to handle OAuth2 callback
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { handleCallback } from "./Security/auth";
@@ -13,19 +13,19 @@ export function CallbackPage({ onAuthUpdate }: CallbackPageProps) {
   useEffect(() => {
     const processCallback = async () => {
       try {
-        console.log("Procesando callback OAuth2...");
+        console.log("Processing OAuth2 callback...");
         const newAccessToken = await handleCallback();
 
         if (newAccessToken) {
-          console.log("Token obtenido exitosamente, actualizando estado...");
+          console.log("Token obtained successfully, updating state...");
           onAuthUpdate(); // Actualizar el estado después del login
           navigate("/dashboard", { replace: true }); // Redirigir al dashboard
         } else {
-          console.error("No se pudo obtener el token");
+          console.error("Could not obtain token");
           navigate("/", { replace: true }); // Redirigir de vuelta al inicio
         }
       } catch (error) {
-        console.error("Error procesando callback:", error);
+        console.error("Error processing callback:", error);
         navigate("/dashboard", { replace: true }); // Redirigir al dashboard (usuario ya autenticado)
       }
     };
@@ -36,9 +36,9 @@ export function CallbackPage({ onAuthUpdate }: CallbackPageProps) {
   return (
     <div className="loading-container">
       <div className="loading large"></div>
-      <p className="loading-text">Procesando autenticación...</p>
+      <p className="loading-text">Processing authentication...</p>
       <p className="callback-info">
-        Por favor espere mientras completamos el proceso de login.
+        Please wait while we complete the login process.
       </p>
     </div>
   );

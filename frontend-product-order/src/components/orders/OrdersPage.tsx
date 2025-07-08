@@ -26,7 +26,7 @@ export function OrdersPage() {
     retryLoadOrders,
   } = useOrdersStore();
 
-  // Mostrar loading si está cargando usuario o órdenes
+  // Show loading if user or orders are being loaded
   if (userLoading) {
     return (
       <div className="container">
@@ -35,7 +35,7 @@ export function OrdersPage() {
           <div className="card-body">
             <div className="loading-container">
               <div className="loading-spinner"></div>
-              <p>Verificando perfil de usuario...</p>
+              <p>Checking user profile...</p>
             </div>
           </div>
         </div>
@@ -43,7 +43,7 @@ export function OrdersPage() {
     );
   }
 
-  // Si hay error del usuario, mostrar mensaje de error con opción de retry
+  // If there is a user error, show error message with retry option
   if (userError) {
     return (
       <div className="container">
@@ -51,11 +51,11 @@ export function OrdersPage() {
         <div className="card">
           <div className="card-body">
             <div className="error-container">
-              <h3>Error de Conexión</h3>
+              <h3>Connection Error</h3>
               <p className="error-message">{userError}</p>
               <div className="mt-3">
                 <button onClick={retryLoadUserData} className="btn btn-primary">
-                  Intentar de Nuevo
+                  Try Again
                 </button>
               </div>
             </div>
@@ -65,7 +65,7 @@ export function OrdersPage() {
     );
   }
 
-  // Si el usuario no tiene perfil, mostrar mensaje para crear perfil
+  // If the user does not have a profile, show message to create profile
   if (!hasProfile) {
     return (
       <div className="container">
@@ -73,17 +73,17 @@ export function OrdersPage() {
         <div className="card">
           <div className="card-body">
             <div className="profile-required">
-              <h3>Perfil de Usuario Requerido</h3>
+              <h3>User Profile Required</h3>
               <p>
-                Para acceder a sus órdenes, necesita completar su perfil de
-                usuario primero.
+                To access your orders, you need to complete your user profile
+                first.
               </p>
               <p>
                 <strong>Email:</strong> {currentUserInfo?.subject}
               </p>
               <div className="mt-3">
                 <Link to="/profile" className="btn btn-primary">
-                  Actualizar Perfil de Usuario
+                  Update Profile
                 </Link>
               </div>
             </div>
@@ -98,6 +98,7 @@ export function OrdersPage() {
       await createDraftOrder();
     } catch (error) {
       console.error("Error creating new order:", error);
+      // Error creating new order
     }
   };
 
@@ -120,10 +121,10 @@ export function OrdersPage() {
     try {
       await confirmDraftOrder();
     } catch (error) {
-      console.error("Error confirming draft order:", error);
+      // Error confirming draft order
       alert(
-        "Error al crear la orden: " +
-          (error instanceof Error ? error.message : "Error desconocido")
+        "Error creating the order: " +
+          (error instanceof Error ? error.message : "Unknown error")
       );
     }
   };
@@ -132,51 +133,51 @@ export function OrdersPage() {
     try {
       await removeOrder(orderId);
     } catch (error) {
-      console.error("Error deleting order:", error);
+      // Error deleting order
       alert(
-        "Error al eliminar la orden: " +
-          (error instanceof Error ? error.message : "Error desconocido")
+        "Error deleting the order: " +
+          (error instanceof Error ? error.message : "Unknown error")
       );
     }
   };
 
-  // Si el usuario tiene perfil, mostrar la página de órdenes
+  // If user has profile, show orders page
   return (
     <div className="orders-container">
       <div className="orders-header">
-        <h2 className="orders-title">Mis Órdenes</h2>
+        <h2 className="orders-title">My Orders</h2>
         <button
           className="btn btn-primary"
           onClick={handleCreateNewOrder}
           disabled={!!draftOrder}
         >
-          {draftOrder ? "Ya hay una orden en progreso" : "Nueva Orden"}
+          {draftOrder ? "An order is already in progress" : "New Order"}
         </button>
       </div>
 
       {ordersLoading && (
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Cargando órdenes...</p>
+          <p>Loading orders...</p>
         </div>
       )}
 
       {ordersError && (
         <div className="error-container">
-          <h3>Error al cargar órdenes</h3>
+          <h3>Error loading orders</h3>
           <p className="error-message">{ordersError}</p>
           <button onClick={retryLoadOrders} className="btn btn-primary">
-            Intentar de Nuevo
+            Try Again
           </button>
         </div>
       )}
 
       {!ordersLoading && !ordersError && (
         <>
-          {/* Orden borrador */}
+          {/* Draft order */}
           {draftOrder && (
             <div className="draft-order-section">
-              <h3>Orden en progreso</h3>
+              <h3>Order in progress</h3>
               <OrderCard
                 order={draftOrder}
                 isDraft={true}
@@ -192,21 +193,21 @@ export function OrdersPage() {
             </div>
           )}
 
-          {/* Órdenes existentes */}
+          {/* Existing orders */}
           <div className="existing-orders-section">
             {orders.length === 0 && !draftOrder ? (
               <div className="empty-orders">
-                <h3>No tienes órdenes aún</h3>
+                <h3>You have no orders yet</h3>
                 <p>
-                  Crea tu primera orden agregando productos desde el catálogo.
+                  Create your first order by adding products from the catalog.
                 </p>
                 <Link to="/products" className="btn btn-primary">
-                  Ver Catálogo de Productos
+                  View Product Catalog
                 </Link>
               </div>
             ) : (
               <>
-                {orders.length > 0 && <h3>Órdenes anteriores</h3>}
+                {orders.length > 0 && <h3>Previous Orders</h3>}
                 {orders.map((order) => (
                   <OrderCard
                     key={order.id}

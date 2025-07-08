@@ -1,4 +1,4 @@
-// UserProfile.tsx: Componente para mostrar y editar el perfil de usuario
+// UserProfile.tsx: Component to display and edit the user profile
 import { useState, useEffect } from "react";
 import type { User } from "../Security/userService";
 import { createUserProfile, updateUserProfile } from "../Security/userService";
@@ -40,7 +40,7 @@ export function UserProfile({
       });
     } else if (userName) {
       console.log("User name from JWT:", userName);
-      // Si tenemos el nombre del JWT, intentar parsearlo
+      // If we have the name from JWT, try to parse it
       const nameParts = userName.split(" ");
       setFormData({
         firstName: nameParts[0] || "",
@@ -68,17 +68,15 @@ export function UserProfile({
     try {
       if (isCreating || !userProfile) {
         await createUserProfile(formData);
-        setSuccessMessage("Perfil creado exitosamente");
+        setSuccessMessage("Profile created successfully");
       } else {
         await updateUserProfile({ ...formData, id: userProfile.id });
-        setSuccessMessage("Perfil actualizado exitosamente");
+        setSuccessMessage("Profile updated successfully");
       }
 
       onProfileUpdated();
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "Error al guardar el perfil"
-      );
+      setError(error instanceof Error ? error.message : "Error saving profile");
     } finally {
       setIsLoading(false);
     }
@@ -90,13 +88,12 @@ export function UserProfile({
         <div className="user-profile-header">
           <h2 className="auth-title">
             {isCreating || !userProfile
-              ? "Crear Perfil de Usuario"
-              : "Actualizar Perfil"}
+              ? "Create User Profile"
+              : "Update Profile"}
           </h2>
           {isCreating && (
             <p className="profile-info">
-              Complete su perfil para acceder a todas las funcionalidades de la
-              aplicación.
+              Complete your profile to access all application features.
             </p>
           )}
         </div>
@@ -130,13 +127,11 @@ export function UserProfile({
                   disabled
                   required
                 />
-                <small className="form-text">
-                  El email no se puede modificar
-                </small>
+                <small className="form-text">Email cannot be modified</small>
               </div>
 
               <div className="form-group">
-                <label htmlFor="firstName">Nombre</label>
+                <label htmlFor="firstName">First Name</label>
                 <input
                   type="text"
                   id="firstName"
@@ -144,13 +139,13 @@ export function UserProfile({
                   value={formData.firstName}
                   onChange={handleInputChange}
                   className="form-control"
-                  placeholder="Ingrese su nombre"
+                  placeholder="Enter your first name"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="lastName">Apellido</label>
+                <label htmlFor="lastName">Last Name</label>
                 <input
                   type="text"
                   id="lastName"
@@ -158,13 +153,13 @@ export function UserProfile({
                   value={formData.lastName}
                   onChange={handleInputChange}
                   className="form-control"
-                  placeholder="Ingrese su apellido"
+                  placeholder="Enter your last name"
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="address">Dirección</label>
+                <label htmlFor="address">Address</label>
                 <input
                   type="text"
                   id="address"
@@ -172,7 +167,7 @@ export function UserProfile({
                   value={formData.address}
                   onChange={handleInputChange}
                   className="form-control"
-                  placeholder="Ingrese su dirección completa"
+                  placeholder="Enter your full address"
                   required
                 />
               </div>
@@ -188,13 +183,13 @@ export function UserProfile({
                   {isLoading ? (
                     <>
                       <span className="loading-spinner"></span>
-                      Guardando...
+                      Saving...
                     </>
                   ) : (
                     <>
                       {isCreating || !userProfile
-                        ? "Crear Perfil"
-                        : "Actualizar Perfil"}
+                        ? "Create Profile"
+                        : "Update Profile"}
                     </>
                   )}
                 </button>

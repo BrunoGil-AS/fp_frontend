@@ -25,11 +25,11 @@ export function ProductsList() {
       setError(null);
       try {
         const productsUrl = `${PRODUCT_SERVICE}/products`;
-        console.log("🚀 Solicitando productos desde:", productsUrl);
+        console.log("🚀 Requesting products from:", productsUrl);
 
         const response = await authenticatedFetch(productsUrl);
 
-        console.log("📡 Respuesta del servidor:", {
+        console.log("📡 Server response:", {
           status: response.status,
           statusText: response.statusText,
           headers: Object.fromEntries(response.headers.entries()),
@@ -43,7 +43,7 @@ export function ProductsList() {
         console.log("Products:", data.data);
         setProducts(data.data);
 
-        // Inicializar cantidades con 1 para cada producto
+        // Initialize quantities with 1 for each product
         const initialQuantities = data.data.reduce(
           (acc: { [key: number]: number }, product: Product) => {
             acc[product.id] = 1;
@@ -57,7 +57,7 @@ export function ProductsList() {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError("Error al obtener productos");
+          setError("Error fetching products");
         }
       } finally {
         setLoading(false);
@@ -77,30 +77,30 @@ export function ProductsList() {
     setSelectedProduct(product);
     setSelectedQuantity(quantity);
 
-    // Si hay una orden borrador, agregar directamente
+    // If there is a draft order, add directly
     if (draftOrder) {
       addProductToOrder("draft", product, quantity);
-      // Mostrar un mensaje más descriptivo
+      // Show a more descriptive message
       const existingItem = draftOrder.items.find(
         (item) => item.product.id === product.id
       );
       if (existingItem) {
         alert(
-          `✅ ${product.name} actualizado en tu orden (${
+          `✅ ${product.name} updated in your order (${
             existingItem.quantity + quantity
-          } unidades)`
+          } units)`
         );
       } else {
         alert(
-          `✅ ${product.name} agregado a tu orden en progreso (${quantity} ${
-            quantity === 1 ? "unidad" : "unidades"
+          `✅ ${product.name} added to your in-progress order (${quantity} ${
+            quantity === 1 ? "unit" : "units"
           })`
         );
       }
       return;
     }
 
-    // Si no hay orden borrador, mostrar modal de selección
+    // If there is no draft order, show selection modal
     setShowOrderModal(true);
   };
 
@@ -110,10 +110,10 @@ export function ProductsList() {
     try {
       await createDraftOrder();
       addProductToOrder("draft", selectedProduct, selectedQuantity);
-      alert(`${selectedProduct.name} agregado a nueva orden`);
+      alert(`${selectedProduct.name} added to new order`);
     } catch (error) {
       console.error("Error creating new order:", error);
-      alert("Error al crear nueva orden");
+      alert("Error creating new order");
     }
   };
 
@@ -121,31 +121,31 @@ export function ProductsList() {
     if (!selectedProduct) return;
 
     addProductToOrder(orderId, selectedProduct, selectedQuantity);
-    alert(`${selectedProduct.name} agregado a la orden #${orderId}`);
+    alert(`${selectedProduct.name} added to order #${orderId}`);
   };
 
   if (loading) return <div className="loading-text">Loading Products...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
-  console.log("Productos cargados:", products);
-  if (!products.length) return <div>Not available products.</div>;
+  console.log("Loaded products:", products);
+  if (!products.length) return <div>No products available.</div>;
 
   return (
     <>
-      {/* Indicador de orden en progreso */}
+      {/* Draft order indicator */}
       {draftOrder && (
         <div className="draft-order-indicator">
           <div className="draft-order-content">
             <div className="draft-order-info">
               <span className="draft-order-icon">🛒</span>
               <div className="draft-order-text">
-                <strong>Orden en progreso:</strong> {draftOrder.items.length}{" "}
-                {draftOrder.items.length === 1 ? "producto" : "productos"} -
+                <strong>Order in progress:</strong> {draftOrder.items.length}{" "}
+                {draftOrder.items.length === 1 ? "product" : "products"} -
                 Total: ${draftOrder.total?.toFixed(2) || "0.00"}
               </div>
             </div>
             <div className="draft-order-actions">
               <Link to="/orders" className="btn btn-primary btn-sm">
-                Ver Orden
+                View Order
               </Link>
             </div>
           </div>
@@ -162,7 +162,7 @@ export function ProductsList() {
                 alt={product.name}
               />
             ) : (
-              <div className="product-image-placeholder">Sin imagen</div>
+              <div className="product-image-placeholder">No image</div>
             )}
             <div className="product-info">
               <div className="product-title">{product.name}</div>
@@ -191,7 +191,7 @@ export function ProductsList() {
                       }))
                     }
                     min="1"
-                    title={`Cantidad para ${product.name}`}
+                    title={`Quantity for ${product.name}`}
                   />
                   <button
                     className="quantity-btn"
@@ -206,15 +206,11 @@ export function ProductsList() {
                   onClick={() => handleAddToOrder(product)}
                   title={
                     draftOrder
-                      ? `Agregar ${product.name} a tu orden en progreso`
-                      : `Agregar ${product.name} a una nueva orden`
+                      ? `Add ${product.name} to your in-progress order`
+                      : `Add ${product.name} to a new order`
                   }
                 >
-                  {draftOrder ? (
-                    <>🛒 Agregar a Mi Orden</>
-                  ) : (
-                    <>➕ Agregar a Orden</>
-                  )}
+                  {draftOrder ? <>🛒 Add to My Order</> : <>➕ Add to Order</>}
                 </button>
               </div>
             </div>

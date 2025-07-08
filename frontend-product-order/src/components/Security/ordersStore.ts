@@ -1,4 +1,4 @@
-// ordersStore.ts: Store global simple para las órdenes
+// ordersStore.ts: Simple global store for orders
 import type { Order, OrderItem, Product } from "./orderService";
 import {
   getUserOrders,
@@ -9,7 +9,7 @@ import {
 } from "./orderService";
 import { getCurrentUserInfo } from "./userService";
 
-// Estado global de las órdenes
+// Global state for orders
 interface OrdersState {
   orders: Order[];
   draftOrder: Order | null;
@@ -32,36 +32,36 @@ class OrdersStore {
   private initialized = false;
 
   constructor() {
-    // No inicializar automáticamente
-    console.log("📦 OrdersStore created but not initialized yet");
+    // Do not auto-initialize
+    // console.log("📦 OrdersStore created but not initialized yet");
   }
 
-  // Inicializar el store de forma manual
+  // Manually initialize the store
   async initialize() {
     if (this.initialized) {
-      console.log("📦 OrdersStore already initialized, skipping");
+      // console.log("📦 OrdersStore already initialized, skipping");
       return;
     }
 
-    console.log("🚀 Initializing OrdersStore...");
+    // console.log("🚀 Initializing OrdersStore...");
     this.initialized = true;
 
-    // Cargar orden borrador sin validación async
+    // Load draft order without async validation
     this.loadDraftOrderFromStorage();
 
-    // Validar la orden borrador y cargar órdenes
+    // Validate draft order and load orders
     await this.validateDraftOrder();
     await this.loadOrders();
   }
 
-  // Verificar si está inicializado
+  // Check if initialized
   isInitialized(): boolean {
     return this.initialized;
   }
 
-  // Reset del store (útil para logout)
+  // Store reset (useful for logout)
   reset() {
-    console.log("🔄 Resetting orders store...");
+    // console.log("🔄 Resetting orders store...");
     this.initialized = false;
     this.state = {
       orders: [],
@@ -72,106 +72,99 @@ class OrdersStore {
     this.notify();
   }
 
-  // Suscribirse a cambios en el estado
+  // Subscribe to state changes
   subscribe(listener: () => void) {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
   }
 
-  // Obtener estado actual
+  // Get current state
   getState(): OrdersState {
     return { ...this.state };
   }
 
-  // Notificar a los suscriptores
+  // Notify subscribers
   private notify() {
     this.listeners.forEach((listener) => listener());
   }
 
-  // Actualizar estado
+  // Update state
   private setState(newState: Partial<OrdersState>) {
     this.state = { ...this.state, ...newState };
-    console.log("🔄 Orders store state updated:", this.state);
+    // console.log("🔄 Orders store state updated:", this.state);
     this.notify();
   }
 
-  // Cargar orden borrador desde localStorage (sin validación async)
+  // Load draft order from localStorage (without async validation)
   private loadDraftOrderFromStorage() {
     try {
       const stored = localStorage.getItem(DRAFT_ORDER_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
 
-        // Recalcular el total por si acaso
+        // Recalculate total just in case
         if (parsed.items) {
           parsed.total = calculateOrderTotal(parsed.items);
         }
 
-        console.log(
-          "📦 Draft order loaded from localStorage (pending validation):",
-          parsed
-        );
+        // console.log("📦 Draft order loaded from localStorage (pending validation):", parsed);
         this.setState({ draftOrder: parsed });
       }
-    } catch (error) {
-      console.error("Error loading draft order from localStorage:", error);
+    } catch {
+      // Error loading draft order from localStorage
       localStorage.removeItem(DRAFT_ORDER_STORAGE_KEY);
     }
   }
 
-  // Validar orden borrador asíncronamente
+  // Validate draft order asynchronously
   async validateDraftOrder() {
     if (!this.state.draftOrder) return;
 
     try {
       const userInfo = await getCurrentUserInfo();
       if (this.state.draftOrder.user?.email !== userInfo.subject) {
-        console.log("❌ Draft order belongs to different user, clearing...");
+        // console.log("❌ Draft order belongs to different user, clearing...");
         localStorage.removeItem(DRAFT_ORDER_STORAGE_KEY);
         this.setState({ draftOrder: null });
       } else {
-        console.log("✅ Draft order validated for current user");
+        // console.log("✅ Draft order validated for current user");
       }
-    } catch (userError) {
-      console.error("Error validating user for draft order:", userError);
+    } catch {
+      // Error validating user for draft order
       localStorage.removeItem(DRAFT_ORDER_STORAGE_KEY);
       this.setState({ draftOrder: null });
     }
   }
 
-  // Guardar orden borrador en localStorage
+  // Save draft order to localStorage
   private saveDraftOrderToStorage(draftOrder: Order | null) {
     try {
       if (draftOrder) {
         const serialized = JSON.stringify(draftOrder);
         localStorage.setItem(DRAFT_ORDER_STORAGE_KEY, serialized);
-        console.log("💾 Draft order saved to localStorage:", {
-          user: draftOrder.user?.email,
-          itemsCount: draftOrder.items.length,
-          total: draftOrder.total,
-        });
+        // console.log("💾 Draft order saved to localStorage:", { user: draftOrder.user?.email, itemsCount: draftOrder.items.length, total: draftOrder.total });
       } else {
         localStorage.removeItem(DRAFT_ORDER_STORAGE_KEY);
-        console.log("🗑️ Draft order removed from localStorage");
+        // console.log("🗑️ Draft order removed from localStorage");
       }
-    } catch (error) {
-      console.error("❌ Error saving draft order to localStorage:", error);
+    } catch {
+      // Error saving draft order to localStorage
     }
   }
 
-  // Cargar órdenes del usuario
+  // Load user orders
   async loadOrders() {
     try {
       this.setState({ isLoading: true, error: null });
       const orders = await getUserOrders();
       this.setState({ orders, isLoading: false });
     } catch (error) {
-      console.error("Error loading orders:", error);
-      let errorMessage = "Error al cargar las órdenes";
+      // Error loading orders
+      let errorMessage = "Error loading orders";
       if (error instanceof Error) {
         if (error.message === "Failed to fetch") {
           errorMessage =
-            "Error de conexión con el servidor. Verifica que el backend esté funcionando.";
+            "Connection error with the server. Make sure the backend is running.";
         } else {
           errorMessage = error.message;
         }
@@ -180,7 +173,7 @@ class OrdersStore {
     }
   }
 
-  // Crear una nueva orden borrador
+  // Create a new draft order
   async createDraftOrder() {
     try {
       const userInfo = await getCurrentUserInfo();
@@ -191,29 +184,25 @@ class OrdersStore {
       this.setState({ draftOrder: newDraftOrder });
       this.saveDraftOrderToStorage(newDraftOrder);
       return newDraftOrder;
-    } catch (error) {
-      console.error("Error creating draft order:", error);
-      throw error;
+    } catch {
+      // Error creating draft order
+      throw new Error("Error creating draft order");
     }
   }
 
-  // Agregar producto a una orden
+  // Add product to an order
   addProductToOrder(
     orderId: number | "draft",
     product: Product,
     quantity: number = 1
   ) {
-    console.log(`➕ Adding product to ${orderId}:`, {
-      productId: product.id,
-      productName: product.name,
-      quantity,
-    });
+    // console.log(`➕ Adding product to ${orderId}:`, { productId: product.id, productName: product.name, quantity });
 
     const newItem: OrderItem = { product, quantity };
 
     if (orderId === "draft") {
       if (!this.state.draftOrder) {
-        console.warn("⚠️ No draft order exists, cannot add product");
+        // console.warn("⚠️ No draft order exists, cannot add product");
         return;
       }
 
@@ -228,10 +217,10 @@ class OrdersStore {
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
-        console.log("📝 Updated existing product quantity");
+        // console.log("📝 Updated existing product quantity");
       } else {
         updatedItems = [...this.state.draftOrder.items, newItem];
-        console.log("✨ Added new product to draft order");
+        // console.log("✨ Added new product to draft order");
       }
 
       const updatedDraftOrder = {
@@ -243,22 +232,19 @@ class OrdersStore {
       this.setState({ draftOrder: updatedDraftOrder });
       this.saveDraftOrderToStorage(updatedDraftOrder);
 
-      console.log("📊 Draft order updated:", {
-        itemsCount: updatedDraftOrder.items.length,
-        total: updatedDraftOrder.total,
-      });
+      // console.log("📊 Draft order updated:", { itemsCount: updatedDraftOrder.items.length, total: updatedDraftOrder.total });
     } else {
-      // Agregar a orden existente
+      // Add to existing order
       const existingOrder = this.state.orders.find(
         (order) => order.id === orderId
       );
 
       if (!existingOrder) {
-        console.warn(`⚠️ Order with ID ${orderId} not found`);
+        // console.warn(`⚠️ Order with ID ${orderId} not found`);
         return;
       }
 
-      console.log(`📝 Adding product to existing order ${orderId}`);
+      // console.log(`📝 Adding product to existing order ${orderId}`);
 
       const existingItemIndex = existingOrder.items.findIndex(
         (item) => item.product.id === product.id
@@ -266,17 +252,17 @@ class OrdersStore {
 
       let updatedItems;
       if (existingItemIndex >= 0) {
-        // Actualizar cantidad del producto existente
+        // Update quantity of existing product
         updatedItems = existingOrder.items.map((item, index) =>
           index === existingItemIndex
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
-        console.log("📝 Updated existing product quantity in order");
+        // console.log("📝 Updated existing product quantity in order");
       } else {
-        // Agregar nuevo producto a la orden
+        // Add new product to the order
         updatedItems = [...existingOrder.items, newItem];
-        console.log("✨ Added new product to existing order");
+        // console.log("✨ Added new product to existing order");
       }
 
       const updatedOrder = {
@@ -285,85 +271,73 @@ class OrdersStore {
         total: calculateOrderTotal(updatedItems),
       };
 
-      // Actualizar el estado local inmediatamente
+      // Update local state immediately
       this.setState({
         orders: this.state.orders.map((order) =>
           order.id === orderId ? updatedOrder : order
         ),
       });
 
-      // Intentar sincronizar con el backend de forma asíncrona
-      this.syncOrderWithBackend(updatedOrder).catch((error: unknown) => {
-        console.error("❌ Error syncing order with backend:", error);
-        // En caso de error, revertir el cambio local
+      // Try to sync with backend asynchronously
+      this.syncOrderWithBackend(updatedOrder).catch(() => {
+        // Error syncing order with backend
+        // In case of error, revert local change
         this.setState({
           orders: this.state.orders.map((order) =>
             order.id === orderId ? existingOrder : order
           ),
         });
-        throw error;
       });
 
-      console.log("📊 Existing order updated locally:", {
-        orderId,
-        itemsCount: updatedOrder.items.length,
-        total: updatedOrder.total,
-      });
+      // console.log("📊 Existing order updated locally:", { orderId, itemsCount: updatedOrder.items.length, total: updatedOrder.total });
     }
   }
 
-  // Confirmar orden borrador
+  // Confirm draft order
   async confirmDraftOrder(): Promise<Order> {
     if (!this.state.draftOrder || this.state.draftOrder.items.length === 0) {
-      throw new Error("La orden está vacía");
+      throw new Error("Order is empty");
     }
 
-    // Log detallado de la orden antes de enviarla
-    console.log("🚀 Confirming draft order:", {
-      itemsCount: this.state.draftOrder.items.length,
-      items: this.state.draftOrder.items.map((item) => ({
-        productId: item.product.id,
-        productName: item.product.name,
-        quantity: item.quantity,
-        hasValidProductId: item.product.id != null,
-      })),
-      total: this.state.draftOrder.total,
-    });
+    // Detailed log of the order before sending
+    // console.log("🚀 Confirming draft order:", {
+    //   itemsCount: this.state.draftOrder.items.length,
+    //   items: this.state.draftOrder.items.map((item) => ({
+    //     productId: item.product.id,
+    //     productName: item.product.name,
+    //     quantity: item.quantity,
+    //     hasValidProductId: item.product.id != null,
+    //   })),
+    //   total: this.state.draftOrder.total,
+    // });
 
-    // Verificar que todos los items tengan productId válido
+    // Check that all items have valid productId
     const invalidItems = this.state.draftOrder.items.filter(
       (item) => !item.product.id
     );
     if (invalidItems.length > 0) {
-      console.error("❌ Found items with invalid productId:", invalidItems);
-      throw new Error(`${invalidItems.length} productos tienen ID inválido`);
+      // Found items with invalid productId
+      throw new Error(`${invalidItems.length} products have invalid ID`);
     }
 
-    try {
-      const createdOrder = await createOrder(this.state.draftOrder);
-
-      // Actualizar estado local
-      this.setState({
-        orders: [createdOrder, ...this.state.orders],
-        draftOrder: null,
-      });
-
-      this.saveDraftOrderToStorage(null);
-      console.log("✅ Order confirmed successfully:", createdOrder.id);
-      return createdOrder;
-    } catch (error) {
-      console.error("❌ Error confirming draft order:", error);
-      throw error;
-    }
+    const createdOrder = await createOrder(this.state.draftOrder);
+    // Update local state
+    this.setState({
+      orders: [createdOrder, ...this.state.orders],
+      draftOrder: null,
+    });
+    this.saveDraftOrderToStorage(null);
+    // console.log("✅ Order confirmed successfully:", createdOrder.id);
+    return createdOrder;
   }
 
-  // Cancelar orden borrador
+  // Cancel draft order
   cancelDraftOrder() {
     this.setState({ draftOrder: null });
     this.saveDraftOrderToStorage(null);
   }
 
-  // Remover producto de una orden
+  // Remove product from an order
   removeProductFromOrder(orderId: number | "draft", productId: number) {
     if (orderId === "draft" && this.state.draftOrder) {
       const updatedItems = this.state.draftOrder.items.filter(
@@ -379,17 +353,17 @@ class OrdersStore {
       this.setState({ draftOrder: updatedDraftOrder });
       this.saveDraftOrderToStorage(updatedDraftOrder);
     } else if (typeof orderId === "number") {
-      // Remover producto de orden existente
+      // Remove product from existing order
       const existingOrder = this.state.orders.find(
         (order) => order.id === orderId
       );
 
       if (!existingOrder) {
-        console.warn(`⚠️ Order with ID ${orderId} not found`);
+        // console.warn(`⚠️ Order with ID ${orderId} not found`);
         return;
       }
 
-      console.log(`🗑️ Removing product ${productId} from order ${orderId}`);
+      // console.log(`🗑️ Removing product ${productId} from order ${orderId}`);
 
       const updatedItems = existingOrder.items.filter(
         (item) => item.product.id !== productId
@@ -401,17 +375,17 @@ class OrdersStore {
         total: calculateOrderTotal(updatedItems),
       };
 
-      // Actualizar el estado local inmediatamente
+      // Update local state immediately
       this.setState({
         orders: this.state.orders.map((order) =>
           order.id === orderId ? updatedOrder : order
         ),
       });
 
-      // Sincronizar con el backend de forma asíncrona
-      this.syncOrderWithBackend(updatedOrder).catch((error: unknown) => {
-        console.error("❌ Error syncing order removal with backend:", error);
-        // En caso de error, revertir el cambio local
+      // Sync with backend asynchronously
+      this.syncOrderWithBackend(updatedOrder).catch(() => {
+        // Error syncing order removal with backend
+        // In case of error, revert local change
         this.setState({
           orders: this.state.orders.map((order) =>
             order.id === orderId ? existingOrder : order
@@ -421,7 +395,7 @@ class OrdersStore {
     }
   }
 
-  // Actualizar cantidad de un producto en una orden
+  // Update product quantity in an order
   updateProductQuantity(
     orderId: number | "draft",
     productId: number,
@@ -448,19 +422,17 @@ class OrdersStore {
       this.setState({ draftOrder: updatedDraftOrder });
       this.saveDraftOrderToStorage(updatedDraftOrder);
     } else if (typeof orderId === "number") {
-      // Actualizar cantidad en orden existente
+      // Update quantity in existing order
       const existingOrder = this.state.orders.find(
         (order) => order.id === orderId
       );
 
       if (!existingOrder) {
-        console.warn(`⚠️ Order with ID ${orderId} not found`);
+        // console.warn(`⚠️ Order with ID ${orderId} not found`);
         return;
       }
 
-      console.log(
-        `📝 Updating quantity for product ${productId} in order ${orderId} to ${newQuantity}`
-      );
+      // console.log(`📝 Updating quantity for product ${productId} in order ${orderId} to ${newQuantity}`);
 
       const updatedItems = existingOrder.items.map((item) =>
         item.product.id === productId
@@ -474,17 +446,17 @@ class OrdersStore {
         total: calculateOrderTotal(updatedItems),
       };
 
-      // Actualizar el estado local inmediatamente
+      // Update local state immediately
       this.setState({
         orders: this.state.orders.map((order) =>
           order.id === orderId ? updatedOrder : order
         ),
       });
 
-      // Sincronizar con el backend de forma asíncrona
-      this.syncOrderWithBackend(updatedOrder).catch((error: unknown) => {
-        console.error("❌ Error syncing quantity update with backend:", error);
-        // En caso de error, revertir el cambio local
+      // Sync with backend asynchronously
+      this.syncOrderWithBackend(updatedOrder).catch(() => {
+        // Error syncing quantity update with backend
+        // In case of error, revert local change
         this.setState({
           orders: this.state.orders.map((order) =>
             order.id === orderId ? existingOrder : order
@@ -494,81 +466,58 @@ class OrdersStore {
     }
   }
 
-  // Actualizar orden existente en el backend
+  // Update existing order in the backend
   async updateExistingOrder(orderId: number): Promise<Order> {
     const orderToUpdate = this.state.orders.find(
       (order) => order.id === orderId
     );
     if (!orderToUpdate) {
-      throw new Error("Orden no encontrada");
+      throw new Error("Order not found");
     }
-
-    try {
-      const updatedOrder = await updateOrder(orderToUpdate);
-
-      // Actualizar estado local
-      this.setState({
-        orders: this.state.orders.map((order) =>
-          order.id === orderId ? updatedOrder : order
-        ),
-      });
-
-      return updatedOrder;
-    } catch (error) {
-      console.error("Error updating order:", error);
-      throw error;
-    }
+    const updatedOrder = await updateOrder(orderToUpdate);
+    // Update local state
+    this.setState({
+      orders: this.state.orders.map((order) =>
+        order.id === orderId ? updatedOrder : order
+      ),
+    });
+    return updatedOrder;
   }
 
-  // Eliminar orden
+  // Delete order
   async removeOrder(orderId: number): Promise<boolean> {
-    try {
-      const success = await deleteOrder(orderId);
-
-      if (success) {
-        // Actualizar estado local
-        this.setState({
-          orders: this.state.orders.filter((order) => order.id !== orderId),
-        });
-      }
-
-      return success;
-    } catch (error) {
-      console.error("Error removing order:", error);
-      throw error;
+    const success = await deleteOrder(orderId);
+    if (success) {
+      // Update local state
+      this.setState({
+        orders: this.state.orders.filter((order) => order.id !== orderId),
+      });
     }
+    return success;
   }
 
-  // Limpiar errores
+  // Clear errors
   clearError() {
     this.setState({ error: null });
   }
 
-  // Sincronizar orden con el backend (método auxiliar)
+  // Sync order with backend (helper method)
   private async syncOrderWithBackend(order: Order): Promise<Order> {
     if (!order.id) {
-      throw new Error("La orden debe tener un ID para ser sincronizada");
+      throw new Error("Order must have an ID to be synced");
     }
-
-    try {
-      console.log(`🔄 Syncing order ${order.id} with backend...`);
-      const syncedOrder = await updateOrder(order);
-
-      // Actualizar estado local con la respuesta del backend
-      this.setState({
-        orders: this.state.orders.map((existingOrder) =>
-          existingOrder.id === order.id ? syncedOrder : existingOrder
-        ),
-      });
-
-      console.log(`✅ Order ${order.id} synced successfully with backend`);
-      return syncedOrder;
-    } catch (error) {
-      console.error(`❌ Error syncing order ${order.id} with backend:`, error);
-      throw error;
-    }
+    // console.log(`🔄 Syncing order ${order.id} with backend...`);
+    const syncedOrder = await updateOrder(order);
+    // Update local state with backend response
+    this.setState({
+      orders: this.state.orders.map((existingOrder) =>
+        existingOrder.id === order.id ? syncedOrder : existingOrder
+      ),
+    });
+    // console.log(`✅ Order ${order.id} synced successfully with backend`);
+    return syncedOrder;
   }
 }
 
-// Instancia única del store
+// Single store instance
 export const ordersStore = new OrdersStore();

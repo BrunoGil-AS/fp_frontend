@@ -1,4 +1,4 @@
-// useUser.ts: Hook personalizado para manejar el estado del usuario
+// useUser.ts: Custom hook for managing user state
 import { useState, useEffect } from "react";
 import type { User, CurrentUserInfo } from "./userService";
 import { getCurrentUserInfo, checkUserProfile } from "./userService";
@@ -24,11 +24,11 @@ export function useUser() {
     try {
       setUserState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-      // Primero obtener información del JWT
+      // First get current user information from JWT
       const currentUserInfo = await getCurrentUserInfo();
       console.log("Current user info:", currentUserInfo);
 
-      // Luego verificar si existe el perfil en el user service
+      // Then check if the profile exists in the user service
       const userProfile = await checkUserProfile(currentUserInfo.subject);
 
       setUserState({
@@ -41,11 +41,11 @@ export function useUser() {
     } catch (error) {
       console.error("Error loading user data:", error);
 
-      let errorMessage = "Error desconocido";
+      let errorMessage = "Unknown error";
       if (error instanceof Error) {
         if (error.message === "Failed to fetch") {
           errorMessage =
-            "Error de conexión con el servidor. Verifica que el backend esté funcionando.";
+            "Server connection error. Verify that the backend is running.";
         } else {
           errorMessage = error.message;
         }
@@ -70,14 +70,14 @@ export function useUser() {
         ...prev,
         userProfile,
         hasProfile: userProfile !== null,
-        error: null, // Limpiar errores en refresh exitoso
+        error: null, // Clear errors on successful refresh
       }));
     } catch (error) {
       console.error("Error refreshing user profile:", error);
       setUserState((prev) => ({
         ...prev,
         error:
-          error instanceof Error ? error.message : "Error al actualizar perfil",
+          error instanceof Error ? error.message : "Error updating profile",
       }));
     }
   };

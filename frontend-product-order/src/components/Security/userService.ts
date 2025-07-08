@@ -1,4 +1,4 @@
-// userService.ts: Servicio para manejar operaciones de usuario
+// userService.ts: Service for handling user operations
 import { authenticatedFetch } from "./auth";
 import { USER_SERVICE } from "../../config";
 
@@ -23,7 +23,7 @@ export interface CurrentUserInfo {
   isAuthenticated: boolean;
 }
 
-// Función para obtener información del usuario actual del JWT
+// Function to get current user information from JWT
 export async function getCurrentUserInfo(): Promise<CurrentUserInfo> {
   try {
     const response = await authenticatedFetch(
@@ -39,7 +39,7 @@ export async function getCurrentUserInfo(): Promise<CurrentUserInfo> {
     return result.data;
   } catch (error) {
     console.error("Error getting current user info:", error);
-    // Si es un error de CORS o de red, intentar continuar con datos del token local
+    // If it's a CORS or network error, try to continue with data from the local token
     if (error instanceof TypeError && error.message === "Failed to fetch") {
       console.warn(
         "CORS error detected, trying to extract info from local token"
@@ -50,7 +50,7 @@ export async function getCurrentUserInfo(): Promise<CurrentUserInfo> {
   }
 }
 
-// Función auxiliar para extraer información del token local cuando hay problemas de CORS
+// Helper function to extract information from the local token when CORS issues occur
 function extractUserInfoFromToken(): CurrentUserInfo {
   const token = sessionStorage.getItem("access_token");
   if (!token) {
@@ -84,7 +84,7 @@ function extractUserInfoFromToken(): CurrentUserInfo {
   }
 }
 
-// Función para verificar si el perfil de usuario existe
+// Function to check if the user profile exists
 export async function checkUserProfile(email: string): Promise<User | null> {
   try {
     const response = await authenticatedFetch(
@@ -114,7 +114,7 @@ export async function checkUserProfile(email: string): Promise<User | null> {
   }
 }
 
-// Función para crear un perfil de usuario
+// Function to create a new user profile
 export async function createUserProfile(
   userData: Omit<User, "id">
 ): Promise<User> {
@@ -144,14 +144,14 @@ export async function createUserProfile(
     console.error("Error creating user profile:", error);
     if (error instanceof TypeError && error.message === "Failed to fetch") {
       throw new Error(
-        "Error de conexión con el servidor. Por favor, verifica que el backend esté funcionando y la configuración de CORS sea correcta."
+        "Server connection error. Please verify that the backend is running and CORS configuration is correct."
       );
     }
     throw error;
   }
 }
 
-// Función para actualizar un perfil de usuario
+// Function to update an existing user profile
 export async function updateUserProfile(userData: User): Promise<User> {
   try {
     console.log("Updating user profile with data:", JSON.stringify(userData));
@@ -180,7 +180,7 @@ export async function updateUserProfile(userData: User): Promise<User> {
     console.error("Error updating user profile:", error);
     if (error instanceof TypeError && error.message === "Failed to fetch") {
       throw new Error(
-        "Error de conexión con el servidor. Por favor, verifica que el backend esté funcionando y la configuración de CORS sea correcta."
+        "Server connection error. Please verify that the backend is running and CORS configuration is correct."
       );
     }
     throw error;

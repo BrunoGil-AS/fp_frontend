@@ -47,7 +47,7 @@ export function OrderSelectionModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
-          <h3>¿Dónde agregar este producto? 🛒</h3>
+          <h3>Where to add this product? 🛒</h3>
           <button className="btn-close" onClick={onClose}>
             ×
           </button>
@@ -55,10 +55,10 @@ export function OrderSelectionModal({
 
         <div className="modal-body">
           <div className="product-summary">
-            <h4>📦 Producto seleccionado:</h4>
+            <h4>📦 Selected Product:</h4>
             <div className="selected-product">
               <span className="product-name">{product.name}</span>
-              <span className="product-quantity">Cantidad: {quantity}</span>
+              <span className="product-quantity">Quantity: {quantity}</span>
               <span className="product-price">
                 ${(product.price * quantity).toFixed(2)}
               </span>
@@ -74,8 +74,8 @@ export function OrderSelectionModal({
                 <div className="option-content">
                   <div className="option-icon">🆕</div>
                   <div className="option-text">
-                    <strong>Crear nueva orden</strong>
-                    <small>Empezar una orden nueva con este producto</small>
+                    <strong>Create new order</strong>
+                    <small>Start a new order with this product</small>
                   </div>
                 </div>
               </button>
@@ -84,9 +84,9 @@ export function OrderSelectionModal({
             {existingOrders.length > 0 && (
               <div className="option-section">
                 <div className="section-divider">
-                  <span>O</span>
+                  <span>Or</span>
                 </div>
-                <h4>📋 Agregar a una orden existente:</h4>
+                <h4>📋 Add to existing order:</h4>
                 <div className="existing-orders">
                   {existingOrders.map((order) => (
                     <label key={order.id} className="order-option">
@@ -101,17 +101,18 @@ export function OrderSelectionModal({
                       <div className="order-info">
                         <div className="order-header">
                           <span className="order-number">
-                            Orden #{order.id}
+                            Order #{order.id}
                           </span>
                           <span className="order-date">
                             {order.createdAt
                               ? new Date(order.createdAt).toLocaleDateString()
-                              : "Nueva"}
+                              : "New"}
                           </span>
                         </div>
                         <div className="order-summary">
                           <span className="items-count">
-                            {order.items.length} productos
+                            {order.items.length}{" "}
+                            {order.items.length === 1 ? "product" : "products"}
                           </span>
                           <span className="order-total">
                             Total: ${order.total?.toFixed(2) || "0.00"}
@@ -120,15 +121,15 @@ export function OrderSelectionModal({
                       </div>
                     </label>
                   ))}
-                </div>
 
-                <button
-                  className="btn btn-secondary btn-lg"
-                  onClick={handleSelectExisting}
-                  disabled={!selectedOrderId}
-                >
-                  Agregar a orden seleccionada
-                </button>
+                  <button
+                    className="btn btn-secondary btn-lg"
+                    onClick={handleSelectExisting}
+                    disabled={!selectedOrderId}
+                  >
+                    Add to selected order
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -136,7 +137,7 @@ export function OrderSelectionModal({
 
         <div className="modal-footer">
           <button className="btn btn-outline" onClick={onClose}>
-            Cancelar
+            Cancel
           </button>
         </div>
       </div>

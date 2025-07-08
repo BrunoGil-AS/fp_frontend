@@ -1,4 +1,4 @@
-// UserPage.tsx: Página principal para gestión de usuario
+// UserPage.tsx: Main page for user management
 import { useUser } from "../Security/useUser";
 import { UserProfile } from "./UserProfile";
 
@@ -17,7 +17,7 @@ export function UserPage() {
       <div className="container">
         <div className="loading-container">
           <div className="loading-spinner large"></div>
-          <p>Cargando información del usuario...</p>
+          <p>Loading user information...</p>
         </div>
       </div>
     );
@@ -27,13 +27,13 @@ export function UserPage() {
     return (
       <div className="container">
         <div className="alert alert-error">
-          <h3>Error al cargar información del usuario</h3>
+          <h3>Error loading user information</h3>
           <p>{error}</p>
           <button
             className="btn btn-primary"
             onClick={() => window.location.reload()}
           >
-            Reintentar
+            Retry
           </button>
         </div>
       </div>
@@ -44,8 +44,8 @@ export function UserPage() {
     return (
       <div className="container">
         <div className="alert alert-error">
-          <h3>Error de autenticación</h3>
-          <p>No se pudo obtener la información del usuario autenticado.</p>
+          <h3>Authentication error</h3>
+          <p>Could not retrieve authenticated user information.</p>
         </div>
       </div>
     );

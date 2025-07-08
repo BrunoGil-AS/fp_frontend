@@ -1,4 +1,5 @@
-// orderService.ts: Servicio para manejar operaciones de órdenes
+/* eslint-disable no-useless-catch */
+// orderService.ts: Service to handle order operations
 import { authenticatedFetch } from "./auth";
 import { ORDER_SERVICE } from "../../config";
 
@@ -28,7 +29,7 @@ export interface Order {
   total?: number;
 }
 
-// Interfaces para los datos que vienen del servidor
+// Interfaces for server response structures
 interface ServerOrderItem {
   id: number;
   productId: number;
@@ -53,7 +54,7 @@ export interface AppResponse<T> {
   data: T;
 }
 
-// Función para transformar datos del servidor al formato del frontend
+// Function to transform server data to frontend format
 function transformServerOrderToClientOrder(serverOrder: ServerOrder): Order {
   return {
     id: serverOrder.id,
@@ -66,8 +67,8 @@ function transformServerOrderToClientOrder(serverOrder: ServerOrder): Order {
           name: serverItem.productName || "Producto sin nombre",
           description: "", // No viene del servidor en este endpoint
           price: serverItem.productPrice || 0,
-          category: serverItem.productCategory || "Sin categoría",
-          // Verificar si la URL de imagen es válida
+          category: serverItem.productCategory || "Uncategorized",
+          // Check if image URL is valid
           imageUrl:
             serverItem.productImageUrl &&
             serverItem.productImageUrl.startsWith("http")
@@ -83,7 +84,7 @@ function transformServerOrderToClientOrder(serverOrder: ServerOrder): Order {
   };
 }
 
-// Función para obtener las órdenes del usuario autenticado
+// Function to get orders for the authenticated user
 export async function getUserOrders(): Promise<Order[]> {
   try {
     const response = await authenticatedFetch(`${ORDER_SERVICE}/orders/me`);
@@ -93,22 +94,22 @@ export async function getUserOrders(): Promise<Order[]> {
     }
 
     const result: AppResponse<ServerOrder[]> = await response.json();
-    console.log("Raw Server Orders:", result.data);
+    // console.log("Raw Server Orders:", result.data);
 
     // Transformar los datos del servidor al formato del frontend
     const transformedOrders = result.data.map(
       transformServerOrderToClientOrder
     );
-    console.log("Transformed Orders:", transformedOrders);
+    // console.log("Transformed Orders:", transformedOrders);
 
     return transformedOrders;
   } catch (error) {
-    console.error("Error fetching user orders:", error);
+    // Error fetching user orders
     throw error;
   }
 }
 
-// Interfaces para envío de datos al backend (estructura de la entidad Order)
+// Interfaces for sending data to backend (Order entity structure)
 interface BackendOrderItem {
   product: {
     id: number;
@@ -125,7 +126,7 @@ interface BackendOrder {
   createdAt?: string;
 }
 
-// Función para transformar orden del frontend al formato de entidad Order del backend
+// Function to transform frontend order to backend Order entity format
 function transformOrderToBackendOrder(order: Order): BackendOrder {
   return {
     id: order.id,
@@ -142,18 +143,18 @@ function transformOrderToBackendOrder(order: Order): BackendOrder {
   };
 }
 
-// Función para crear una nueva orden
+// Function to create a new order
 export async function createOrder(order: Order): Promise<Order> {
   try {
-    // Validar que la orden tenga items válidos
+    // Validate that the order has valid items
     const validItems = order.items.filter((item) => item.product.id != null);
     if (validItems.length === 0) {
-      throw new Error("La orden debe contener al menos un producto válido");
+      throw new Error("Order must contain at least one valid product");
     }
 
     // Transformar al formato de entidad Order del backend
     const payload = transformOrderToBackendOrder(order);
-    console.log("📤 Sending order creation payload:", payload);
+    // console.log("📤 Sending order creation payload:", payload);
 
     const response = await authenticatedFetch(`${ORDER_SERVICE}/orders/me`, {
       method: "POST",
@@ -174,30 +175,30 @@ export async function createOrder(order: Order): Promise<Order> {
     // Transformar la respuesta del servidor al formato del frontend
     return transformServerOrderToClientOrder(result.data);
   } catch (error) {
-    console.error("Error creating order:", error);
+    // Error creating order
     throw error;
   }
 }
 
-// Función para actualizar una orden existente
+// Function to update an existing order
 export async function updateOrder(order: Order): Promise<Order> {
   try {
-    // Validar que la orden tenga un ID
+    // Validate that the order has an ID
     if (!order.id) {
-      throw new Error("La orden debe tener un ID para ser actualizada");
+      throw new Error("Order must have an ID to be updated");
     }
 
-    // Validar que la orden tenga items válidos
+    // Validate that the order has valid items
     const validItems = order.items.filter((item) => item.product.id != null);
     if (validItems.length === 0) {
-      throw new Error("La orden debe contener al menos un producto válido");
+      throw new Error("Order must contain at least one valid product");
     }
 
-    console.log("Updating order:", order);
-    // Transformar al formato de entidad Order del backend
+    // console.log("Updating order:", order);
+    // Transform to backend Order entity format
     const payload = transformOrderToBackendOrder(order);
-    console.log("📤 Sending order update payload:", payload);
-    console.log("📤 Updating order with ID:", order.id);
+    // console.log("📤 Sending order update payload:", payload);
+    // console.log("📤 Updating order with ID:", order.id);
 
     const response = await authenticatedFetch(`${ORDER_SERVICE}/orders/me`, {
       method: "PUT",
@@ -215,15 +216,15 @@ export async function updateOrder(order: Order): Promise<Order> {
     }
 
     const result: AppResponse<ServerOrder> = await response.json();
-    // Transformar la respuesta del servidor al formato del frontend
+    // Transform server response to frontend format
     return transformServerOrderToClientOrder(result.data);
   } catch (error) {
-    console.error("Error updating order:", error);
+    // Error updating order
     throw error;
   }
 }
 
-// Función para eliminar una orden
+// Function to delete an order
 export async function deleteOrder(orderId: number): Promise<boolean> {
   try {
     const response = await authenticatedFetch(
@@ -243,12 +244,12 @@ export async function deleteOrder(orderId: number): Promise<boolean> {
     const result: AppResponse<boolean> = await response.json();
     return result.data;
   } catch (error) {
-    console.error("Error deleting order:", error);
+    // Error deleting order
     throw error;
   }
 }
 
-// Función auxiliar para calcular el total de una orden
+// Helper function to calculate the total of an order
 export function calculateOrderTotal(items: OrderItem[]): number {
   return items.reduce(
     (total, item) => total + item.product.price * item.quantity,
