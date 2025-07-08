@@ -248,8 +248,67 @@ class OrdersStore {
         total: updatedDraftOrder.total,
       });
     } else {
-      // Agregar a orden existente (por implementar si es necesario)
-      console.log("Adding to existing order not implemented yet");
+      // Agregar a orden existente
+      const existingOrder = this.state.orders.find(
+        (order) => order.id === orderId
+      );
+
+      if (!existingOrder) {
+        console.warn(`⚠️ Order with ID ${orderId} not found`);
+        return;
+      }
+
+      console.log(`📝 Adding product to existing order ${orderId}`);
+
+      const existingItemIndex = existingOrder.items.findIndex(
+        (item) => item.product.id === product.id
+      );
+
+      let updatedItems;
+      if (existingItemIndex >= 0) {
+        // Actualizar cantidad del producto existente
+        updatedItems = existingOrder.items.map((item, index) =>
+          index === existingItemIndex
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+        console.log("📝 Updated existing product quantity in order");
+      } else {
+        // Agregar nuevo producto a la orden
+        updatedItems = [...existingOrder.items, newItem];
+        console.log("✨ Added new product to existing order");
+      }
+
+      const updatedOrder = {
+        ...existingOrder,
+        items: updatedItems,
+        total: calculateOrderTotal(updatedItems),
+      };
+
+      // Actualizar el estado local inmediatamente
+      this.setState({
+        orders: this.state.orders.map((order) =>
+          order.id === orderId ? updatedOrder : order
+        ),
+      });
+
+      // Intentar sincronizar con el backend de forma asíncrona
+      this.syncOrderWithBackend(updatedOrder).catch((error: unknown) => {
+        console.error("❌ Error syncing order with backend:", error);
+        // En caso de error, revertir el cambio local
+        this.setState({
+          orders: this.state.orders.map((order) =>
+            order.id === orderId ? existingOrder : order
+          ),
+        });
+        throw error;
+      });
+
+      console.log("📊 Existing order updated locally:", {
+        orderId,
+        itemsCount: updatedOrder.items.length,
+        total: updatedOrder.total,
+      });
     }
   }
 
@@ -319,6 +378,46 @@ class OrdersStore {
 
       this.setState({ draftOrder: updatedDraftOrder });
       this.saveDraftOrderToStorage(updatedDraftOrder);
+    } else if (typeof orderId === "number") {
+      // Remover producto de orden existente
+      const existingOrder = this.state.orders.find(
+        (order) => order.id === orderId
+      );
+
+      if (!existingOrder) {
+        console.warn(`⚠️ Order with ID ${orderId} not found`);
+        return;
+      }
+
+      console.log(`🗑️ Removing product ${productId} from order ${orderId}`);
+
+      const updatedItems = existingOrder.items.filter(
+        (item) => item.product.id !== productId
+      );
+
+      const updatedOrder = {
+        ...existingOrder,
+        items: updatedItems,
+        total: calculateOrderTotal(updatedItems),
+      };
+
+      // Actualizar el estado local inmediatamente
+      this.setState({
+        orders: this.state.orders.map((order) =>
+          order.id === orderId ? updatedOrder : order
+        ),
+      });
+
+      // Sincronizar con el backend de forma asíncrona
+      this.syncOrderWithBackend(updatedOrder).catch((error: unknown) => {
+        console.error("❌ Error syncing order removal with backend:", error);
+        // En caso de error, revertir el cambio local
+        this.setState({
+          orders: this.state.orders.map((order) =>
+            order.id === orderId ? existingOrder : order
+          ),
+        });
+      });
     }
   }
 
@@ -348,6 +447,50 @@ class OrdersStore {
 
       this.setState({ draftOrder: updatedDraftOrder });
       this.saveDraftOrderToStorage(updatedDraftOrder);
+    } else if (typeof orderId === "number") {
+      // Actualizar cantidad en orden existente
+      const existingOrder = this.state.orders.find(
+        (order) => order.id === orderId
+      );
+
+      if (!existingOrder) {
+        console.warn(`⚠️ Order with ID ${orderId} not found`);
+        return;
+      }
+
+      console.log(
+        `📝 Updating quantity for product ${productId} in order ${orderId} to ${newQuantity}`
+      );
+
+      const updatedItems = existingOrder.items.map((item) =>
+        item.product.id === productId
+          ? { ...item, quantity: newQuantity }
+          : item
+      );
+
+      const updatedOrder = {
+        ...existingOrder,
+        items: updatedItems,
+        total: calculateOrderTotal(updatedItems),
+      };
+
+      // Actualizar el estado local inmediatamente
+      this.setState({
+        orders: this.state.orders.map((order) =>
+          order.id === orderId ? updatedOrder : order
+        ),
+      });
+
+      // Sincronizar con el backend de forma asíncrona
+      this.syncOrderWithBackend(updatedOrder).catch((error: unknown) => {
+        console.error("❌ Error syncing quantity update with backend:", error);
+        // En caso de error, revertir el cambio local
+        this.setState({
+          orders: this.state.orders.map((order) =>
+            order.id === orderId ? existingOrder : order
+          ),
+        });
+      });
     }
   }
 
@@ -399,6 +542,31 @@ class OrdersStore {
   // Limpiar errores
   clearError() {
     this.setState({ error: null });
+  }
+
+  // Sincronizar orden con el backend (método auxiliar)
+  private async syncOrderWithBackend(order: Order): Promise<Order> {
+    if (!order.id) {
+      throw new Error("La orden debe tener un ID para ser sincronizada");
+    }
+
+    try {
+      console.log(`🔄 Syncing order ${order.id} with backend...`);
+      const syncedOrder = await updateOrder(order);
+
+      // Actualizar estado local con la respuesta del backend
+      this.setState({
+        orders: this.state.orders.map((existingOrder) =>
+          existingOrder.id === order.id ? syncedOrder : existingOrder
+        ),
+      });
+
+      console.log(`✅ Order ${order.id} synced successfully with backend`);
+      return syncedOrder;
+    } catch (error) {
+      console.error(`❌ Error syncing order ${order.id} with backend:`, error);
+      throw error;
+    }
   }
 }
 
