@@ -21,7 +21,6 @@ export function OrdersPage() {
     updateProductQuantity,
     removeProductFromOrder,
     confirmDraftOrder,
-    updateExistingOrder,
     removeOrder,
     cancelDraftOrder,
     retryLoadOrders,
@@ -129,19 +128,6 @@ export function OrdersPage() {
     }
   };
 
-  const handleUpdateOrder = async (orderId: number) => {
-    try {
-      await updateExistingOrder(orderId);
-      alert("Orden actualizada exitosamente");
-    } catch (error) {
-      console.error("Error updating order:", error);
-      alert(
-        "Error al actualizar la orden: " +
-          (error instanceof Error ? error.message : "Error desconocido")
-      );
-    }
-  };
-
   const handleDeleteOrder = async (orderId: number) => {
     try {
       await removeOrder(orderId);
@@ -232,7 +218,6 @@ export function OrdersPage() {
                     onRemoveProduct={(productId) =>
                       handleRemoveProduct(order.id!, productId)
                     }
-                    onUpdateOrder={() => handleUpdateOrder(order.id!)}
                     onDeleteOrder={() => handleDeleteOrder(order.id!)}
                   />
                 ))}

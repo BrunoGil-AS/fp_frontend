@@ -8,7 +8,6 @@ interface OrderCardProps {
   onUpdateQuantity: (productId: number, newQuantity: number) => void;
   onRemoveProduct: (productId: number) => void;
   onConfirmOrder?: () => void;
-  onUpdateOrder?: () => void;
   onDeleteOrder?: () => void;
   onCancelDraft?: () => void;
 }
@@ -19,7 +18,6 @@ export function OrderCard({
   onUpdateQuantity,
   onRemoveProduct,
   onConfirmOrder,
-  onUpdateOrder,
   onDeleteOrder,
   onCancelDraft,
 }: OrderCardProps) {
@@ -33,19 +31,6 @@ export function OrderCard({
       await onConfirmOrder();
     } catch (error) {
       console.error("Error confirming order:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUpdateOrder = async () => {
-    if (!onUpdateOrder) return;
-
-    setIsLoading(true);
-    try {
-      await onUpdateOrder();
-    } catch (error) {
-      console.error("Error updating order:", error);
     } finally {
       setIsLoading(false);
     }
@@ -222,15 +207,6 @@ export function OrderCard({
             >
               {isLoading ? "Eliminando..." : "Eliminar"}
             </button>
-            {order.items.length > 0 && (
-              <button
-                className="btn btn-secondary"
-                onClick={handleUpdateOrder}
-                disabled={isLoading}
-              >
-                {isLoading ? "Actualizando..." : "Actualizar"}
-              </button>
-            )}
           </>
         )}
       </div>
