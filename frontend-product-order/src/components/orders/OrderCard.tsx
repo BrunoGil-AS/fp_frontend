@@ -167,7 +167,7 @@ export function OrderCard({
         {order.items.length > 0 && (
           <div className="order-summary">
             <div className="summary-row">
-              <span>Productos ({order.items.length}):</span>
+              <span>Products ({order.items.length}):</span>
               <span>${order.total?.toFixed(2) || "0.00"}</span>
             </div>
             <div className="summary-row total">
