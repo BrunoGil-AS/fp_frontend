@@ -1,13 +1,21 @@
 /* Estilos para el Dashboard */
 
 .admin-welcome {
-  border-left: 4px solid #007bff;
-  background: linear-gradient(135deg, #e7f3ff 0%, #f8f9fa 100%);
+  border-left: 4px solid var(--primary-color);
+  background: linear-gradient(
+    135deg,
+    rgba(0, 123, 255, 0.1) 0%,
+    var(--bg-secondary) 100%
+  );
 }
 
 .user-welcome {
-  border-left: 4px solid #28a745;
-  background: linear-gradient(135deg, #e8f5e8 0%, #f8f9fa 100%);
+  border-left: 4px solid var(--success-color);
+  background: linear-gradient(
+    135deg,
+    rgba(40, 167, 69, 0.1) 0%,
+    var(--bg-secondary) 100%
+  );
 }
 
 .feature-grid {
@@ -18,56 +26,57 @@
 }
 
 .feature-item {
-  background: white;
+  background: var(--bg-card);
   padding: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid #dee2e6;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-normal);
 }
 
 .feature-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .feature-item h4 {
   margin: 0 0 0.5rem 0;
-  color: #495057;
+  color: var(--text-primary);
   font-size: 1.1rem;
 }
 
 .feature-item p {
   margin: 0 0 1rem 0;
-  color: #6c757d;
+  color: var(--text-secondary);
   font-size: 0.9rem;
   line-height: 1.4;
 }
 
 .admin-restrictions {
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
-  border-radius: 6px;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid var(--warning-color);
+  border-radius: var(--border-radius-sm);
   padding: 1rem;
   margin-top: 1.5rem;
 }
 
 .admin-restrictions h4 {
   margin: 0 0 0.5rem 0;
-  color: #856404;
+  color: var(--warning-color);
   font-size: 1rem;
+  font-weight: 600;
 }
 
 .admin-restrictions p {
   margin: 0 0 0.5rem 0;
-  color: #856404;
+  color: var(--warning-color);
   font-size: 0.9rem;
 }
 
 .admin-restrictions ul {
   margin: 0;
   padding-left: 1.5rem;
-  color: #856404;
+  color: var(--warning-color);
 }
 
 .admin-restrictions li {
@@ -94,33 +103,52 @@
 
 .role-badge {
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: var(--border-radius-sm);
   font-weight: 600;
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  box-shadow: var(--shadow-sm);
 }
 
 .role-admin {
-  background: #dc3545;
+  background: var(--danger-color);
   color: white;
 }
 
 .role-user {
-  background: #28a745;
+  background: var(--success-color);
   color: white;
 }
 
 .admin-badge {
-  background: #dc3545;
+  background: var(--danger-color);
   color: white;
   padding: 0.3rem 0.6rem;
-  border-radius: 4px;
+  border-radius: var(--border-radius-sm);
   font-size: 0.7rem;
   font-weight: bold;
   margin-left: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Estilos específicos para cards del dashboard */
+.container .card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+.container .card-header {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.container .card-body {
+  background: var(--bg-card);
+  color: var(--text-primary);
 }
 
 /* Access Denied Component */

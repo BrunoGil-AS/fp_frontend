@@ -121,49 +121,52 @@ export function Dashboard({ accessToken }: DashboardProps) {
         </div>
       )}
 
-      <div className="card">
-        <div className="card-header">
-          <h3>Authentication Status</h3>
-        </div>
-        <div className="card-body">
-          <div className="auth-info-grid">
-            <div className="token-section">
-              <h4>Access Token:</h4>
-              <code className="token-display">
-                {accessToken
-                  ? accessToken.substring(0, 50) + "..."
-                  : "Not available"}
-              </code>
-            </div>
-
-            <div className="role-section">
-              <h4>Current Role:</h4>
-              <span className={`role-badge role-${role?.toLowerCase()}`}>
-                {role || "Loading..."}
-              </span>
-            </div>
+      {/* Sección de Authentication Status - Solo visible para Administradores */}
+      {isAdmin && (
+        <div className="card">
+          <div className="card-header">
+            <h3>Authentication Status</h3>
           </div>
+          <div className="card-body">
+            <div className="auth-info-grid">
+              <div className="token-section">
+                <h4>Access Token:</h4>
+                <code className="token-display">
+                  {accessToken
+                    ? accessToken.substring(0, 50) + "..."
+                    : "Not available"}
+                </code>
+              </div>
 
-          <div className="button-group">
-            <button className="btn btn-secondary" onClick={handleReauth}>
-              🔄 Renew Token
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={testAuthenticatedRequest}
-            >
-              🧪 Test API Connection
-            </button>
-          </div>
-
-          {apiResponse && (
-            <div className="api-response">
-              <h4>Response:</h4>
-              <pre>{apiResponse}</pre>
+              <div className="role-section">
+                <h4>Current Role:</h4>
+                <span className={`role-badge role-${role?.toLowerCase()}`}>
+                  {role || "Loading..."}
+                </span>
+              </div>
             </div>
-          )}
+
+            <div className="button-group">
+              <button className="btn btn-secondary" onClick={handleReauth}>
+                🔄 Renew Token
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={testAuthenticatedRequest}
+              >
+                🧪 Test API Connection
+              </button>
+            </div>
+
+            {apiResponse && (
+              <div className="api-response">
+                <h4>Response:</h4>
+                <pre>{apiResponse}</pre>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
