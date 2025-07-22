@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { login } from "./components/Security/auth";
 import { useAuth } from "./components/Security/useAuth";
+import { useUserRole } from "./components/Security/useUserRole";
 import { Navigation } from "./components/Navigation";
 import { Dashboard } from "./components/Dashboard";
 import { ProductsPage } from "./components/products/ProductsPage";
@@ -17,8 +18,9 @@ import "./styles/index.css";
 function App() {
   const { accessToken, isAuthenticated, isLoading, logout, updateAuthState } =
     useAuth();
+  const { isAdmin, isUser, isLoading: roleLoading } = useUserRole();
 
-  if (isLoading)
+  if (isLoading || (isAuthenticated && roleLoading))
     return (
       <div className="loading-container">
         <div className="loading"></div>
@@ -70,8 +72,31 @@ function App() {
               element={<Dashboard accessToken={accessToken} />}
             />
             <Route path="/products" element={<ProductsPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/profile" element={<UserPage />} />
+
+            {/* Rutas exclusivas para usuarios (no admin) */}
+            {isUser && (
+              <>
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/profile" element={<UserPage />} />
+              </>
+            )}
+
+            {/* Redirigir rutas no permitidas para admins */}
+            {isAdmin && (
+              <>
+                <Route
+                  path="/orders"
+                  element={<Navigate to="/dashboard" replace />}
+                />
+                <Route
+                  path="/profile"
+                  element={<Navigate to="/dashboard" replace />}
+                />
+              </>
+            )}
+
+            {/* Ruta catch-all */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </main>
       </div>

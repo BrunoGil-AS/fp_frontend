@@ -3,11 +3,16 @@ import { Link } from "react-router-dom";
 import { authenticatedFetch } from "../Security/auth";
 import { PRODUCT_SERVICE } from "../../config";
 import { useOrdersStore } from "../Security/useOrdersStore";
+import { useUserRole } from "../Security/useUserRole";
 import { OrderSelectionModal } from "../orders/OrderSelectionModal";
 import type { Product } from "../Security/orderService";
 import "../../styles/components/products.css";
 
-export function ProductsList() {
+interface ProductsListProps {
+  adminMode?: boolean;
+}
+
+export function ProductsList({ adminMode = false }: ProductsListProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +23,7 @@ export function ProductsList() {
 
   const { orders, draftOrder, createDraftOrder, addProductToOrder } =
     useOrdersStore();
+  const { isUser } = useUserRole();
 
   useEffect(() => {
     async function fetchProducts() {
@@ -131,8 +137,8 @@ export function ProductsList() {
 
   return (
     <>
-      {/* Draft order indicator */}
-      {draftOrder && (
+      {/* Draft order indicator - solo para usuarios, no para admins */}
+      {isUser && draftOrder && (
         <div className="draft-order-indicator">
           <div className="draft-order-content">
             <div className="draft-order-info">
@@ -149,6 +155,16 @@ export function ProductsList() {
               </Link>
             </div>
           </div>
+        </div>
+      )}
+
+      {adminMode && (
+        <div className="admin-products-header">
+          <h4>Product Catalog (Admin View)</h4>
+          <p>
+            Browse all products. Use the tabs above to create or manage
+            products.
+          </p>
         </div>
       )}
 
@@ -169,64 +185,81 @@ export function ProductsList() {
               <div className="product-description">{product.description}</div>
               <div className="product-price">${product.price.toFixed(2)}</div>
 
-              <div className="product-actions">
-                <div className="quantity-selector">
+              {adminMode && (
+                <div className="admin-product-details">
+                  <span className="product-id">ID: {product.id}</span>
+                  <span className="product-category">{product.category}</span>
+                </div>
+              )}
+
+              {/* Solo mostrar acciones de orden para usuarios normales */}
+              {isUser && !adminMode && (
+                <div className="product-actions">
+                  <div className="quantity-selector">
+                    <button
+                      className="quantity-btn"
+                      onClick={() => handleQuantityChange(product.id, -1)}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      className="quantity-input"
+                      value={quantities[product.id] || 1}
+                      onChange={(e) =>
+                        setQuantities((prev) => ({
+                          ...prev,
+                          [product.id]: Math.max(
+                            1,
+                            parseInt(e.target.value) || 1
+                          ),
+                        }))
+                      }
+                      min="1"
+                      title={`Quantity for ${product.name}`}
+                    />
+                    <button
+                      className="quantity-btn"
+                      onClick={() => handleQuantityChange(product.id, 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+
                   <button
-                    className="quantity-btn"
-                    onClick={() => handleQuantityChange(product.id, -1)}
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    className="quantity-input"
-                    value={quantities[product.id] || 1}
-                    onChange={(e) =>
-                      setQuantities((prev) => ({
-                        ...prev,
-                        [product.id]: Math.max(
-                          1,
-                          parseInt(e.target.value) || 1
-                        ),
-                      }))
+                    className="btn btn-primary add-to-order-btn"
+                    onClick={() => handleAddToOrder(product)}
+                    title={
+                      draftOrder
+                        ? `Add ${product.name} to your in-progress order`
+                        : `Add ${product.name} to a new order`
                     }
-                    min="1"
-                    title={`Quantity for ${product.name}`}
-                  />
-                  <button
-                    className="quantity-btn"
-                    onClick={() => handleQuantityChange(product.id, 1)}
                   >
-                    +
+                    {draftOrder ? (
+                      <>🛒 Add to My Order</>
+                    ) : (
+                      <>➕ Add to Order</>
+                    )}
                   </button>
                 </div>
-
-                <button
-                  className="btn btn-primary add-to-order-btn"
-                  onClick={() => handleAddToOrder(product)}
-                  title={
-                    draftOrder
-                      ? `Add ${product.name} to your in-progress order`
-                      : `Add ${product.name} to a new order`
-                  }
-                >
-                  {draftOrder ? <>🛒 Add to My Order</> : <>➕ Add to Order</>}
-                </button>
-              </div>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      <OrderSelectionModal
-        isOpen={showOrderModal}
-        onClose={() => setShowOrderModal(false)}
-        product={selectedProduct!}
-        quantity={selectedQuantity}
-        orders={orders}
-        onCreateNewOrder={handleCreateNewOrder}
-        onSelectExistingOrder={handleSelectExistingOrder}
-      />
+      {/* Modal de selección de orden - solo para usuarios */}
+      {isUser && (
+        <OrderSelectionModal
+          isOpen={showOrderModal}
+          onClose={() => setShowOrderModal(false)}
+          product={selectedProduct!}
+          quantity={selectedQuantity}
+          orders={orders}
+          onCreateNewOrder={handleCreateNewOrder}
+          onSelectExistingOrder={handleSelectExistingOrder}
+        />
+      )}
     </>
   );
 }
